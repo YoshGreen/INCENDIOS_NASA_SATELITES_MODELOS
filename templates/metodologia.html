@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% set active_page = 'metodologia' %}
+
+{% block content %}
+<div class="wrap">
+  <div class="section-lbl">
+    <span>METODOLOGÍA</span>
+    <span>PROYECTO FINAL · MACHINE LEARNING</span>
+  </div>
+  
+  <h1 style="font-size:clamp(22px,4vw,34px);color:#fff;margin:0 0 10px;">Detección de focos de calor satelitales en Bolivia</h1>
+  <p class="lede">Documentación del proceso metodológico, desde la obtención de datos hasta el entrenamiento y evaluación de modelos.</p>
+
+  <div class="form-card" style="margin-bottom: 20px;">
+    <h2 style="font-size:18px;color:#fff;margin:0 0 12px;">Objetivo del proyecto</h2>
+    <p style="font-family:'Space Mono',monospace; font-size:12px; color:var(--dim); line-height:1.8;">
+      Desarrollar modelos de Machine Learning supervisado para analizar y predecir patrones de incendios forestales en Bolivia, utilizando datos satelitales del sistema NASA FIRMS (Fire Information for Resource Management System).
+    </p>
+  </div>
+
+  <div class="form-card" style="margin-bottom: 20px;">
+    <h2 style="font-size:18px;color:#fff;margin:0 0 12px;">Fuente de datos</h2>
+    <p style="font-family:'Space Mono',monospace; font-size:12px; color:var(--dim); line-height:1.8; margin-bottom: 10px;">
+      Los datos provienen del sistema NASA FIRMS, que integra detecciones de los sensores VIIRS (Visible Infrared Imaging Radiometer Suite) a bordo de los satélites Suomi NPP (N20) y NOAA-20 (N21), y MODIS (Moderate Resolution Imaging Spectroradiometer) a bordo de Aqua y Terra.
+    </p>
+    <p style="font-family:'Space Mono',monospace; font-size:12px; color:var(--dim); line-height:1.8;">
+      El dataset contiene 671,786 registros con 17 variables, cubriendo detecciones de focos de calor en territorio boliviano.
+    </p>
+  </div>
+
+  <div class="form-card" style="margin-bottom: 20px;">
+    <h2 style="font-size:18px;color:#fff;margin:0 0 12px;">Variables utilizadas</h2>
+    <div class="term" style="margin-top: 15px;">
+      <div class="term-body" style="overflow-x: auto; padding: 15px;">
+        <table class="term-table">
+          <tbody>
+            <tr><td><strong>brightness</strong></td><td>Temperatura de brillo del canal 4 (K)</td></tr>
+            <tr><td><strong>bright_t31</strong></td><td>Temperatura de brillo del canal 31/terreno (K)</td></tr>
+            <tr><td><strong>scan</strong></td><td>Ancho del píxel de escaneo (km)</td></tr>
+            <tr><td><strong>track</strong></td><td>Profundidad del píxel de escaneo (km)</td></tr>
+            <tr><td><strong>confidence_num</strong></td><td>Nivel de confianza de la detección (%)</td></tr>
+            <tr><td><strong>frp</strong></td><td>Potencia Radiativa del Fuego (MW)</td></tr>
+            <tr><td><strong>daynight</strong></td><td>Indicador de detección diurna (D) o nocturna (N)</td></tr>
+            <tr><td><strong>satellite</strong></td><td>Satélite que realizó la detección</td></tr>
+            <tr><td><strong>instrument</strong></td><td>Instrumento sensor utilizado</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-card" style="margin-bottom: 20px;">
+    <h2 style="font-size:18px;color:#fff;margin:0 0 12px;">Tareas de modelado</h2>
+    
+    <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
+      <div class="zone-card">
+        <h3 style="font-size:14px; color:#fff; margin:0 0 5px;">Regresión</h3>
+        <p style="font-family:'Space Mono',monospace; font-size:11px; color:var(--dim);">Predecir frp_log (potencia radiativa) usando brightness, bright_t31, scan, track, confidence_num</p>
+      </div>
+      <div class="zone-card">
+        <h3 style="font-size:14px; color:#fff; margin:0 0 5px;">Clasificación binaria</h3>
+        <p style="font-family:'Space Mono',monospace; font-size:11px; color:var(--dim);">Predecir día/noche usando brightness, bright_t31, frp_log, scan, track, confidence_num</p>
+      </div>
+      <div class="zone-card">
+        <h3 style="font-size:14px; color:#fff; margin:0 0 5px;">Clasificación multiclase</h3>
+        <p style="font-family:'Space Mono',monospace; font-size:11px; color:var(--dim);">Predecir nivel de FRP (Bajo/Medio/Alto) usando variables numéricas + categóricas codificadas con One-Hot</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-card" style="margin-bottom: 20px;">
+    <h2 style="font-size:18px;color:#fff;margin:0 0 12px;">Modelos evaluados</h2>
+    <p style="font-family:'Space Mono',monospace; font-size:12px; color:var(--dim); line-height:1.8; margin-bottom: 10px;">
+      Se entrenaron y evaluaron 14 modelos diferentes incluyendo: LightGBM, XGBoost, CatBoost, Random Forest, Gradient Boosting, Árbol de Decisión, SVR/SVM, KNN, AdaBoost, Regresión Lineal/Logística, Ridge, Lasso, ElasticNet, Naive Bayes, y Regresión Polinomial.
+    </p>
+    <p style="font-family:'Space Mono',monospace; font-size:12px; color:var(--amber); line-height:1.8;">
+      LightGBM resultó ser el modelo campeón en las tres tareas.
+    </p>
+  </div>
+
+</div>
+{% endblock %}

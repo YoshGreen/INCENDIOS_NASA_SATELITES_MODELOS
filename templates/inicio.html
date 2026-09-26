@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% set active_page = 'inicio' %}
+{% block title %}Inicio — FIRMS // BOLIVIA{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <div class="wrap">
+        <div class="tag">FIRMS // BOLIVIA — VIIRS / MODIS</div>
+        <h1>Detección de Focos de Calor en Bolivia</h1>
+        <p class="lede">Dashboard interactivo de Machine Learning sobre 671,786 detecciones satelitales. Predicción de intensidad, clasificación día/noche y nivel de riesgo — diseñado para gestores de emergencia.</p>
+        
+        <div class="night-map">
+            <div class="light l-hot" style="top:20%; left:30%;"></div>
+            <div class="light l-warm" style="top:45%; left:60%;"></div>
+            <div class="light l-cold" style="top:70%; left:40%;"></div>
+            <div class="light l-warm" style="top:15%; left:80%;"></div>
+            <div class="light l-hot" style="top:60%; left:75%;"></div>
+            <div class="light l-cold" style="top:80%; left:25%;"></div>
+            <div class="light l-warm" style="top:35%; left:45%;"></div>
+            <div class="light l-hot" style="top:55%; left:20%;"></div>
+        </div>
+        
+        <div class="readout">
+            <div>
+                <span class="lbl">REGISTROS ANALIZADOS</span>
+                <span class="val">671,786</span>
+            </div>
+            <div>
+                <span class="lbl">SENSORES</span>
+                <span class="val">VIIRS / MODIS</span>
+            </div>
+            <div>
+                <span class="lbl">MODELOS ENTRENADOS</span>
+                <span class="val">14</span>
+            </div>
+            <div>
+                <span class="lbl">VARIABLES</span>
+                <span class="val">17</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="wrap" style="padding: 40px 24px;">
+    <div class="section-lbl">
+        <span>¿QUÉ PUEDES HACER AQUÍ?</span>
+        <span></span>
+    </div>
+    <div class="zones">
+        <a href="{{ url_for('predecir_intensidad') }}" class="zone z3" style="text-decoration: none;">
+            <div class="t">PREDECIR INTENSIDAD</div>
+            <div class="v">MW</div>
+            <div class="d">Estima la potencia radiativa del fuego</div>
+        </a>
+        <a href="{{ url_for('predecir_dia_noche') }}" class="zone z2" style="text-decoration: none;">
+            <div class="t">CLASIFICAR DÍA/NOCHE</div>
+            <div class="v">D/N</div>
+            <div class="d">Determina el momento de la detección</div>
+        </a>
+        <a href="{{ url_for('clasificar_nivel') }}" class="zone z5" style="text-decoration: none;">
+            <div class="t">NIVEL DE RIESGO</div>
+            <div class="v">3 NIVELES</div>
+            <div class="d">Bajo · Medio · Alto</div>
+        </a>
+    </div>
+</div>
+{% endblock %}

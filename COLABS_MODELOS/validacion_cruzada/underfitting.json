@@ -1,0 +1,10 @@
+{
+  "lineal": {
+    "mse_train": 0.6401,
+    "mse_test": 0.6364
+  },
+  "polinomio_grado_3": {
+    "mse_train": 0.6201,
+    "mse_test": 0.6223
+  }
+}

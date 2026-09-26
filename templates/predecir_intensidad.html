@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% set active_page = 'intensidad' %}
+{% block title %}Predecir Intensidad — FIRMS // BOLIVIA{% endblock %}
+
+{% block content %}
+<div class="wrap" style="padding: 40px 24px;">
+    <div class="section-lbl">
+        <span>PREDICCIÓN DE INTENSIDAD</span>
+        <span>MODELO: LIGHTGBM</span>
+    </div>
+    
+    <h1 style="font-size:clamp(22px,4vw,34px);color:#fff;margin:0 0 10px;">¿Qué tan intenso es este foco de calor?</h1>
+    <p class="lede" style="margin:0 0 30px;">Ingresa los datos del sensor satelital y el modelo predecirá la potencia radiativa del fuego (FRP) en megawatts.</p>
+    
+    <div class="form-card">
+        <form id="form-intensidad">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>TEMPERATURA DE BRILLO (K)</label>
+                    <input type="number" name="brightness" step="0.1" placeholder="ej: 320.5" required>
+                </div>
+                <div class="form-group">
+                    <label>TEMPERATURA DEL TERRENO CIRCUNDANTE (K)</label>
+                    <input type="number" name="bright_t31" step="0.1" placeholder="ej: 295.0" required>
+                </div>
+                <div class="form-group">
+                    <label>ANCHO DE ESCANEO (KM)</label>
+                    <input type="number" name="scan" step="0.01" placeholder="ej: 0.39" required>
+                </div>
+                <div class="form-group">
+                    <label>PROFUNDIDAD DE ESCANEO (KM)</label>
+                    <input type="number" name="track" step="0.01" placeholder="ej: 0.36" required>
+                </div>
+                <div class="form-group">
+                    <label>CONFIANZA DE DETECCIÓN SATELITAL (%)</label>
+                    <input type="number" name="confidence_num" step="1" min="0" max="100" placeholder="ej: 85" required>
+                </div>
+                <div class="form-group" style="display: flex; align-items: flex-end;">
+                    <button type="submit" class="btn-predict" style="width: 100%;">🔥 PREDECIR INTENSIDAD</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <div id="resultado-intensidad" class="result-card" style="display:none; margin-top: 24px; padding: 24px; border-radius: 4px; text-align: center;">
+        <div class="result-label" style="font-family:'Space Mono', monospace; font-size: 12px; letter-spacing: 1px; opacity: 0.8; margin-bottom: 8px;">POTENCIA RADIATIVA ESTIMADA</div>
+        <div id="resultado-valor" class="result-value" style="font-family:'Space Mono', monospace; font-size: 32px; font-weight: bold; margin-bottom: 12px;"></div>
+        <div id="resultado-desc" class="result-desc" style="font-size: 14px; opacity: 0.9;"></div>
+    </div>
+</div>
+
+<script>
+document.getElementById('form-intensidad').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = this.querySelector('button');
+    btn.disabled = true;
+    btn.textContent = 'Procesando...';
+    
+    const formData = new FormData(this);
+    const data = Object.fromEntries(formData);
+    
+    try {
+        const resp = await fetch('/api/predecir-intensidad', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+        const result = await resp.json();
+        
+        if (result.error) { 
+            alert(result.error); 
+            return; 
+        }
+        
+        const card = document.getElementById('resultado-intensidad');
+        const gradients = {
+            'bajo': 'linear-gradient(135deg,#16222E,#0F1A24)',
+            'medio': 'linear-gradient(135deg,#3A2A1B,#4A3520)',
+            'alto': 'linear-gradient(135deg,#8A3A17,#B84A1B)',
+            'critico': 'linear-gradient(135deg,#C24A0F,#F2790F)'
+        };
+        const colors = {
+            'bajo':'#7FA8D6',
+            'medio':'#E8B85C',
+            'alto':'#FFC46B',
+            'critico':'#fff'
+        };
+        
+        card.style.background = gradients[result.nivel] || gradients['medio'];
+        card.style.color = colors[result.nivel] || '#E8B85C';
+        
+        document.getElementById('resultado-valor').textContent = result.frp_mw.toFixed(1) + ' MW';
+        document.getElementById('resultado-desc').textContent = result.descripcion;
+        
+        card.classList.add('show');
+        card.style.display = 'block';
+    } catch(err) { 
+        alert('Error al conectar con el servidor'); 
+    } finally { 
+        btn.disabled = false; 
+        btn.textContent = '🔥 PREDECIR INTENSIDAD'; 
+    }
+});
+</script>
+{% endblock %}

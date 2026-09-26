@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% set active_page = 'dia-noche' %}
+{% block title %}Clasificar Día/Noche — FIRMS // BOLIVIA{% endblock %}
+
+{% block content %}
+<div class="wrap" style="padding: 40px 24px;">
+    <div class="section-lbl">
+        <span>CLASIFICACIÓN DÍA / NOCHE</span>
+        <span>MODELO: LIGHTGBM</span>
+    </div>
+    
+    <h1 style="font-size:clamp(22px,4vw,34px);color:#fff;margin:0 0 10px;">¿Esta detección ocurrió de día o de noche?</h1>
+    <p class="lede" style="margin:0 0 30px;">El modelo analiza las lecturas del sensor para determinar si el foco fue detectado durante el día o la noche.</p>
+    
+    <div class="form-card">
+        <form id="form-dia-noche">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>TEMPERATURA DE BRILLO (K)</label>
+                    <input type="number" name="brightness" step="0.1" placeholder="ej: 320.5" required>
+                </div>
+                <div class="form-group">
+                    <label>TEMPERATURA DEL TERRENO (K)</label>
+                    <input type="number" name="bright_t31" step="0.1" placeholder="ej: 295.0" required>
+                </div>
+                <div class="form-group">
+                    <label>LOG DE POTENCIA RADIATIVA</label>
+                    <input type="number" name="frp_log" step="0.01" placeholder="ej: 2.5" required>
+                </div>
+                <div class="form-group">
+                    <label>ANCHO DE ESCANEO (KM)</label>
+                    <input type="number" name="scan" step="0.01" placeholder="ej: 0.39" required>
+                </div>
+                <div class="form-group">
+                    <label>PROFUNDIDAD DE ESCANEO (KM)</label>
+                    <input type="number" name="track" step="0.01" placeholder="ej: 0.36" required>
+                </div>
+                <div class="form-group">
+                    <label>CONFIANZA DE DETECCIÓN (%)</label>
+                    <input type="number" name="confidence_num" step="1" min="0" max="100" placeholder="ej: 85" required>
+                </div>
+                <div class="form-group" style="grid-column: 1 / -1; margin-top: 10px;">
+                    <button type="submit" class="btn-predict" style="width: 100%;">☀️ CLASIFICAR DÍA/NOCHE</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <div id="mapa-resultado" class="night-map" style="display:none; height:200px; margin-top:24px; position:relative;">
+        <div id="punto-resultado" class="light" style="top:45%; left:50%;"></div>
+    </div>
+    <div id="resultado-dia-noche" style="text-align:center; margin-top:16px; display:none;">
+        <p id="resultado-dn-texto" style="font-family:'Space Mono',monospace; font-size:14px; color:var(--amber);"></p>
+    </div>
+</div>
+
+<script>
+document.getElementById('form-dia-noche').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = this.querySelector('button');
+    btn.disabled = true;
+    btn.textContent = 'Procesando...';
+    
+    const formData = new FormData(this);
+    const data = Object.fromEntries(formData);
+    
+    try {
+        const resp = await fetch('/api/predecir-dia-noche', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+        const result = await resp.json();
+        
+        if (result.error) { 
+            alert(result.error); 
+            return; 
+        }
+        
+        const mapArea = document.getElementById('mapa-resultado');
+        const textContainer = document.getElementById('resultado-dia-noche');
+        const textEl = document.getElementById('resultado-dn-texto');
+        const point = document.getElementById('punto-resultado');
+        
+        point.className = 'light'; // reset classes
+        
+        if (result.prediccion === 'D') {
+            point.classList.add('l-warm');
+            mapArea.style.background = 'linear-gradient(to bottom, #4a6fa5, #16222E)';
+            textEl.textContent = `Predicción: Día — Probabilidad: ${(result.probabilidad_dia * 100).toFixed(1)}%`;
+            textEl.style.color = '#FFC46B';
+        } else {
+            point.classList.add('l-cold');
+            mapArea.style.background = 'linear-gradient(to bottom, #050b14, #16222E)';
+            textEl.textContent = `Predicción: Noche — Probabilidad: ${(result.probabilidad_noche * 100).toFixed(1)}%`;
+            textEl.style.color = '#7FA8D6';
+        }
+        
+        mapArea.style.display = 'block';
+        textContainer.style.display = 'block';
+        
+    } catch(err) { 
+        alert('Error al conectar con el servidor'); 
+    } finally { 
+        btn.disabled = false; 
+        btn.textContent = '☀️ CLASIFICAR DÍA/NOCHE'; 
+    }
+});
+</script>
+{% endblock %}

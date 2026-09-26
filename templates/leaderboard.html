@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% set active_page = 'modelos' %}
+
+{% block content %}
+<div class="wrap">
+  <div class="section-lbl">
+    <span>COMPARATIVA DE MODELOS</span>
+    <span>TODOS LOS ALGORITMOS EVALUADOS</span>
+  </div>
+  
+  <h1 style="font-size:clamp(22px,4vw,34px);color:#fff;margin:0 0 10px;">¿Qué modelo predice mejor?</h1>
+  <p class="lede" style="text-align: left;">Comparamos múltiples algoritmos de Machine Learning para cada tarea. El modelo campeón aparece resaltado.</p>
+
+  <!-- Task 1: Predicción de Intensidad (Regresión) -->
+  <div class="section-lbl" style="margin-top: 40px;">
+    <span>PREDICCIÓN DE INTENSIDAD</span>
+    <span>REGRESIÓN</span>
+  </div>
+  
+  <div class="gauge-container">
+    <div class="gauge">
+      <svg viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="50" fill="none" stroke="var(--dim2)" stroke-width="6" opacity="0.3"/>
+        <circle cx="60" cy="60" r="50" fill="none" stroke="var(--amber)" stroke-width="6"
+          stroke-dasharray="{{ (metricas_reg[0]['R2'] * 314)|round }}  314"
+          stroke-linecap="round" transform="rotate(-90 60 60)"/>
+        <text x="60" y="56" text-anchor="middle" fill="var(--amber)" font-family="Space Mono" font-size="18" font-weight="700">{{ (metricas_reg[0]['R2'] * 100)|round(1) }}%</text>
+        <text x="60" y="72" text-anchor="middle" fill="var(--dim)" font-family="Space Mono" font-size="8">PRECISIÓN</text>
+      </svg>
+      <div class="gauge-label">Confiabilidad del mejor modelo</div>
+      <div class="gauge-value">{{ metricas_reg[0]['Modelo'] }}</div>
+    </div>
+  </div>
+
+  <p style="font-family:'Space Mono',monospace; font-size:12px; color:var(--dim); margin-bottom:20px; text-align:center;">
+    El mejor modelo predice la potencia del fuego con un margen de error de ± {{ (metricas_reg[0]['MAE'])|round(2) }} (en escala logarítmica)
+  </p>
+
+  <div class="term">
+    <div class="term-top">
+      <span>REGRESION_BENCHMARK.TXT</span>
+      <span class="rec">● RESULTADOS</span>
+    </div>
+    <div class="term-body" style="overflow-x: auto;">
+      <table class="term-table">
+        <thead>
+          <tr>
+            <th>MODELO</th>
+            <th>ERROR PROMEDIO (MAE)</th>
+            <th>PRECISIÓN (R²)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m in metricas_reg %}
+          <tr class="{% if loop.first %}champion{% endif %}">
+            <td>{% if loop.first %}<span class="sev crit"></span>{% endif %}{{ m.Modelo }}</td>
+            <td>{{ m.MAE|round(4) }}</td>
+            <td>{{ (m.R2 * 100)|round(1) }}%</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Task 2: Clasificación Día/Noche -->
+  <div class="section-lbl" style="margin-top: 40px;">
+    <span>CLASIFICACIÓN DÍA / NOCHE</span>
+    <span>CLASIFICACIÓN BINARIA</span>
+  </div>
+  
+  <div class="gauge-container">
+    <div class="gauge">
+      <svg viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="50" fill="none" stroke="var(--dim2)" stroke-width="6" opacity="0.3"/>
+        <circle cx="60" cy="60" r="50" fill="none" stroke="var(--amber)" stroke-width="6"
+          stroke-dasharray="{{ (metricas_dn[0]['AUC'] * 314)|round }}  314"
+          stroke-linecap="round" transform="rotate(-90 60 60)"/>
+        <text x="60" y="56" text-anchor="middle" fill="var(--amber)" font-family="Space Mono" font-size="18" font-weight="700">{{ (metricas_dn[0]['AUC'] * 100)|round(1) }}%</text>
+        <text x="60" y="72" text-anchor="middle" fill="var(--dim)" font-family="Space Mono" font-size="8">AUC</text>
+      </svg>
+      <div class="gauge-label">Confiabilidad del mejor modelo</div>
+      <div class="gauge-value">{{ metricas_dn[0]['Modelo'] }}</div>
+    </div>
+  </div>
+
+  <p style="font-family:'Space Mono',monospace; font-size:12px; color:var(--dim); margin-bottom:20px; text-align:center;">
+    El modelo identifica correctamente el {{ (metricas_dn[0]['Accuracy'] * 100)|round(1) }}% de las detecciones como día o noche
+  </p>
+
+  <div class="term">
+    <div class="term-top">
+      <span>DAYNIGHT_BENCHMARK.TXT</span>
+      <span class="rec">● RESULTADOS</span>
+    </div>
+    <div class="term-body" style="overflow-x: auto;">
+      <table class="term-table">
+        <thead>
+          <tr>
+            <th>MODELO</th>
+            <th>PRECISIÓN (ACCURACY)</th>
+            <th>CONFIABILIDAD (AUC)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m in metricas_dn %}
+          <tr class="{% if loop.first %}champion{% endif %}">
+            <td>{% if loop.first %}<span class="sev crit"></span>{% endif %}{{ m.Modelo }}</td>
+            <td>{{ (m.Accuracy * 100)|round(1) }}%</td>
+            <td>{{ (m.AUC * 100)|round(1) }}%</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Task 3: Clasificación Nivel de Riesgo -->
+  <div class="section-lbl" style="margin-top: 40px;">
+    <span>CLASIFICACIÓN DE NIVEL DE RIESGO</span>
+    <span>3 CLASES: BAJO · MEDIO · ALTO</span>
+  </div>
+  
+  <div class="gauge-container">
+    <div class="gauge">
+      <svg viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="50" fill="none" stroke="var(--dim2)" stroke-width="6" opacity="0.3"/>
+        <circle cx="60" cy="60" r="50" fill="none" stroke="var(--amber)" stroke-width="6"
+          stroke-dasharray="{{ (metricas_nivel[0]['AUC (macro OVR)'] * 314)|round }}  314"
+          stroke-linecap="round" transform="rotate(-90 60 60)"/>
+        <text x="60" y="56" text-anchor="middle" fill="var(--amber)" font-family="Space Mono" font-size="18" font-weight="700">{{ (metricas_nivel[0]['AUC (macro OVR)'] * 100)|round(1) }}%</text>
+        <text x="60" y="72" text-anchor="middle" fill="var(--dim)" font-family="Space Mono" font-size="8">AUC</text>
+      </svg>
+      <div class="gauge-label">Confiabilidad del mejor modelo</div>
+      <div class="gauge-value">{{ metricas_nivel[0]['Modelo'] }}</div>
+    </div>
+  </div>
+
+  <p style="font-family:'Space Mono',monospace; font-size:12px; color:var(--dim); margin-bottom:20px; text-align:center;">
+    El modelo clasifica correctamente el {{ (metricas_nivel[0]['Accuracy'] * 100)|round(1) }}% de los focos en su nivel de riesgo
+  </p>
+
+  <div class="term">
+    <div class="term-top">
+      <span>NIVEL_BENCHMARK.TXT</span>
+      <span class="rec">● RESULTADOS</span>
+    </div>
+    <div class="term-body" style="overflow-x: auto;">
+      <table class="term-table">
+        <thead>
+          <tr>
+            <th>MODELO</th>
+            <th>PRECISIÓN (ACCURACY)</th>
+            <th>CONFIABILIDAD (AUC)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m in metricas_nivel %}
+          <tr class="{% if loop.first %}champion{% endif %}">
+            <td>{% if loop.first %}<span class="sev crit"></span>{% endif %}{{ m.Modelo }}</td>
+            <td>{{ (m.Accuracy * 100)|round(1) }}%</td>
+            <td>{{ (m['AUC (macro OVR)'] * 100)|round(1) }}%</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

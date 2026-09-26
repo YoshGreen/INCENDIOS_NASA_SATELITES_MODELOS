@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% set active_page = 'nivel' %}
+{% block title %}Clasificar Nivel de Riesgo — FIRMS // BOLIVIA{% endblock %}
+
+{% block content %}
+<div class="wrap" style="padding: 40px 24px;">
+    <div class="section-lbl">
+        <span>CLASIFICACIÓN DE NIVEL DE RIESGO</span>
+        <span>MODELO: LIGHTGBM</span>
+    </div>
+    
+    <h1 style="font-size:clamp(22px,4vw,34px);color:#fff;margin:0 0 10px;">¿Cuál es el nivel de riesgo de este foco?</h1>
+    <p class="lede" style="margin:0 0 30px;">Combina datos numéricos y categóricos del sensor para clasificar la detección en tres niveles: Bajo, Medio o Alto.</p>
+    
+    <div class="form-card">
+        <form id="form-nivel">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>TEMPERATURA DE BRILLO (K)</label>
+                    <input type="number" name="brightness" step="0.1" required>
+                </div>
+                <div class="form-group">
+                    <label>TEMPERATURA DEL TERRENO (K)</label>
+                    <input type="number" name="bright_t31" step="0.1" required>
+                </div>
+                <div class="form-group">
+                    <label>ANCHO DE ESCANEO (KM)</label>
+                    <input type="number" name="scan" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label>PROFUNDIDAD DE ESCANEO (KM)</label>
+                    <input type="number" name="track" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label>CONFIANZA DE DETECCIÓN (%)</label>
+                    <input type="number" name="confidence_num" step="1" min="0" max="100" required>
+                </div>
+                <div class="form-group">
+                    <label>MES (1-12)</label>
+                    <input type="number" name="mes" step="1" min="1" max="12" placeholder="ej: 8" required>
+                </div>
+                <div class="form-group">
+                    <label>HORA (0-23)</label>
+                    <input type="number" name="hora" step="1" min="0" max="23" placeholder="ej: 14" required>
+                </div>
+                <div class="form-group">
+                    <label>MOMENTO DEL DÍA</label>
+                    <select name="daynight" required style="width:100%; padding:8px; background:rgba(0,0,0,0.5); border:1px solid #334; color:#fff;">
+                        <option value="D">Día</option>
+                        <option value="N">Noche</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>SATÉLITE</label>
+                    <select name="satellite" required style="width:100%; padding:8px; background:rgba(0,0,0,0.5); border:1px solid #334; color:#fff;">
+                        <option value="N20">Suomi NPP (N20)</option>
+                        <option value="N21">NOAA-20 (N21)</option>
+                        <option value="SNPP">Suomi NPP (SNPP)</option>
+                        <option value="Aqua">Aqua</option>
+                        <option value="Terra">Terra</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>INSTRUMENTO</label>
+                    <select name="instrument" required style="width:100%; padding:8px; background:rgba(0,0,0,0.5); border:1px solid #334; color:#fff;">
+                        <option value="VIIRS">VIIRS</option>
+                        <option value="MODIS">MODIS</option>
+                        <option value="SNPP">SNPP</option>
+                    </select>
+                </div>
+                <div class="form-group" style="grid-column: 1 / -1; margin-top: 10px;">
+                    <button type="submit" class="btn-predict" style="width: 100%;">⚠️ CLASIFICAR NIVEL</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <div id="resultado-nivel" style="margin-top:24px; display:none; text-align:center; padding: 24px; background: rgba(0,0,0,0.3); border-radius: 4px; border: 1px solid #334;">
+        <div style="display:flex; justify-content:center; align-items:center; gap:12px; margin-bottom:16px;">
+            <div id="nivel-dot" class="sev" style="width: 24px; height: 24px;"></div>
+            <h2 id="nivel-texto" style="margin:0; font-family:'Space Mono', monospace; font-size: 24px; letter-spacing: 1px;"></h2>
+        </div>
+        <p id="nivel-desc" style="margin:0; font-size: 14px; opacity: 0.8;"></p>
+    </div>
+</div>
+
+<script>
+document.getElementById('form-nivel').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = this.querySelector('button');
+    btn.disabled = true;
+    btn.textContent = 'Procesando...';
+    
+    const formData = new FormData(this);
+    const data = Object.fromEntries(formData);
+    
+    try {
+        const resp = await fetch('/api/clasificar-nivel', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+        const result = await resp.json();
+        
+        if (result.error) { 
+            alert(result.error); 
+            return; 
+        }
+        
+        const resDiv = document.getElementById('resultado-nivel');
+        const dot = document.getElementById('nivel-dot');
+        const texto = document.getElementById('nivel-texto');
+        const desc = document.getElementById('nivel-desc');
+        
+        dot.className = 'sev'; // reset classes
+        
+        let color = '#fff';
+        if (result.nivel === 0) {
+            dot.classList.add('low');
+            texto.textContent = "NIVEL BAJO";
+            color = '#7FA8D6';
+        } else if (result.nivel === 1) {
+            dot.classList.add('mid');
+            texto.textContent = "NIVEL MEDIO";
+            color = '#E8B85C';
+        } else {
+            dot.classList.add('high');
+            texto.textContent = "NIVEL ALTO";
+            color = '#F2790F';
+        }
+        
+        texto.style.color = color;
+        
+        let probsText = '';
+        if (result.probabilidades && result.probabilidades.length >= 3) {
+            probsText = `Probabilidades — Bajo: ${(result.probabilidades[0]*100).toFixed(1)}% | Medio: ${(result.probabilidades[1]*100).toFixed(1)}% | Alto: ${(result.probabilidades[2]*100).toFixed(1)}%`;
+        }
+        
+        desc.textContent = probsText || result.descripcion;
+        
+        resDiv.style.display = 'block';
+        
+    } catch(err) { 
+        alert('Error al conectar con el servidor'); 
+    } finally { 
+        btn.disabled = false; 
+        btn.textContent = '⚠️ CLASIFICAR NIVEL'; 
+    }
+});
+</script>
+{% endblock %}

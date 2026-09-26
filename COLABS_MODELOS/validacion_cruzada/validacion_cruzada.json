@@ -1,0 +1,29 @@
+{
+  "kfold": {
+    "accuracies": [
+      0.9121,
+      0.9124,
+      0.9116,
+      0.9112,
+      0.9114
+    ],
+    "promedio": 0.9117,
+    "desviacion": 0.0004
+  },
+  "stratified_kfold": {
+    "accuracies": [
+      0.911,
+      0.9115,
+      0.9105,
+      0.9125,
+      0.9109
+    ],
+    "promedio": 0.9113,
+    "desviacion": 0.0007
+  },
+  "leave_one_out": {
+    "promedio": 0.8767,
+    "n_pruebas": 300,
+    "nota": "Validación extrema con 300 casos individuales (submuestra, no el dataset completo)"
+  }
+}

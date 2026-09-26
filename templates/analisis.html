@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+{% set active_page = "analisis" %}
+
+{% block title %}Análisis Visual de Modelos - FIRMS BOLIVIA{% endblock %}
+
+{% block content %}
+<main class="wrap" style="padding-top: 40px; padding-bottom: 60px;">
+    
+    <div class="terminal-table" style="margin-bottom: 40px; padding: 30px;">
+        <h1 style="color: var(--amber); margin-bottom: 15px; font-size: 28px;">ANÁLISIS DE RENDIMIENTO DE LOS MODELOS</h1>
+        <p style="font-family: 'Space Mono', monospace; color: #ccc; font-size: 15px; line-height: 1.6;">
+            En este apartado traducimos la complejidad matemática a conceptos prácticos y entendibles de negocio.<br>
+            Comparamos todos los algoritmos entrenados para identificar cuál es el mejor para operar en Bolivia, midiendo su "Tasa de Acierto" y su fiabilidad.<br>
+            <strong>Nota:</strong> Los algoritmos se separan en dos grandes tareas dependiendo de qué intentan predecir: <em>Clasificación</em> (etiquetas) o <em>Regresión</em> (números exactos).
+        </p>
+    </div>
+
+    <!-- SECCION 1: CLASIFICACION NIVEL DE RIESGO -->
+    <h2 style="color: #fff; margin-bottom: 20px; border-bottom: 1px solid var(--rule); padding-bottom: 10px;">
+        1. MODELOS DE CLASIFICACIÓN (NIVEL DE RIESGO)
+    </h2>
+    <div class="zone-card" style="margin-bottom: 40px; background: rgba(0,0,0,0.4);">
+        <p style="color: #aaa; margin-bottom: 20px; line-height: 1.5;">
+            <strong>Objetivo:</strong> Catalogar automáticamente si un foco de calor es de riesgo <strong>Bajo, Medio o Alto</strong>. <br>
+            A continuación mostramos la <strong>Tasa de Acierto (Accuracy)</strong> y el <strong>Área Bajo la Curva ROC (AUC)</strong>. <br>La Curva ROC mide la capacidad del modelo para no confundir categorías. Un AUC cercano a 1.0 (o 100%) indica que el algoritmo es virtualmente perfecto distinguiendo entre niveles de riesgo, sin caer en "falsas alarmas".
+        </p>
+        
+        <div style="background: var(--bg); padding: 20px; border: 1px solid var(--rule2); border-radius: 4px; position: relative; height: 350px;">
+            <canvas id="chartNivel"></canvas>
+        </div>
+        
+        <div style="margin-top: 20px; padding: 15px; background: rgba(240, 134, 46, 0.1); border-left: 4px solid var(--amber);">
+            <strong style="color: var(--amber);">Interpretación Práctica:</strong> LightGBM lidera la clasificación. Si lo ponemos a trabajar hoy, de cada 100 focos de calor detectados, le asignaría el nivel de riesgo correcto a la gran mayoría, y rara vez confundiría una situación Crítica con una Segura (lo cual se refleja en su alto valor de Curva ROC).
+        </div>
+    </div>
+
+    <!-- SECCION 2: CLASIFICACION DIA/NOCHE -->
+    <h2 style="color: #fff; margin-bottom: 20px; border-bottom: 1px solid var(--rule); padding-bottom: 10px; margin-top: 60px;">
+        2. MODELOS DE CLASIFICACIÓN (DÍA / NOCHE)
+    </h2>
+    <div class="zone-card" style="margin-bottom: 40px; background: rgba(0,0,0,0.4);">
+        <p style="color: #aaa; margin-bottom: 20px; line-height: 1.5;">
+            <strong>Objetivo:</strong> Diferenciar si un foco ocurrió de Día o de Noche analizando únicamente su temperatura y radiación. <br>
+            Al ser solo dos opciones posibles, los algoritmos logran precisiones muchísimo más altas que en la tarea anterior. Comparamos su Tasa de Aciertos general.
+        </p>
+        
+        <div style="background: var(--bg); padding: 20px; border: 1px solid var(--rule2); border-radius: 4px; position: relative; height: 350px;">
+            <canvas id="chartDiaNoche"></canvas>
+        </div>
+
+        <div style="margin-top: 20px; padding: 15px; background: rgba(240, 134, 46, 0.1); border-left: 4px solid var(--amber);">
+            <strong style="color: var(--amber);">Interpretación Práctica:</strong> Esta es la tarea más sencilla para los modelos. Casi todos superan el 90% de aciertos. El modelo ganador es capaz de saber casi sin equivocarse (92% de éxito) si es de día o de noche mirando exclusivamente el "brillo" captado por el satélite.
+        </div>
+    </div>
+
+    <!-- SECCION 3: REGRESION INTENSIDAD FRP -->
+    <h2 style="color: #fff; margin-bottom: 20px; border-bottom: 1px solid var(--rule); padding-bottom: 10px; margin-top: 60px;">
+        3. MODELOS DE REGRESIÓN (ESTIMAR ENERGÍA)
+    </h2>
+    <div class="zone-card" style="margin-bottom: 40px; background: rgba(0,0,0,0.4);">
+        <p style="color: #aaa; margin-bottom: 20px; line-height: 1.5;">
+            <strong>Objetivo:</strong> En lugar de agrupar en categorías, la <em>Regresión</em> intenta predecir el número exacto de la Potencia Radiativa (FRP) en Megavatios (MW). <br>
+            Aquí no medimos "aciertos" directos. Medimos la <strong>Capacidad Explicativa (R-cuadrado)</strong>: un valor de 0 a 1 que indica qué tan bien el algoritmo puede calcular la potencia sin alejarse demasiado de la realidad.
+        </p>
+        
+        <div style="background: var(--bg); padding: 20px; border: 1px solid var(--rule2); border-radius: 4px; position: relative; height: 350px;">
+            <canvas id="chartRegresion"></canvas>
+        </div>
+
+        <div style="margin-top: 20px; padding: 15px; background: rgba(240, 134, 46, 0.1); border-left: 4px solid var(--amber);">
+            <strong style="color: var(--amber);">Interpretación Práctica:</strong> LightGBM y Random Forest pueden predecir aproximadamente el 71% del comportamiento real del fuego. Se puede observar que otros modelos más simples (como AdaBoost) se equivocan enormemente tratando de calcular estos números exactos.
+        </div>
+    </div>
+
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Variables enviadas desde Python (el backend ordena los JSON de mejor a peor)
+    const mNivel = {{ metricas_nivel | tojson }};
+    const mDiaNoche = {{ metricas_dn | tojson }};
+    const mReg = {{ metricas_reg | tojson }};
+
+    // Paleta de Colores
+    const colorLGBM = 'rgba(240, 134, 46, 0.8)'; // Ámbar principal para el campeón
+    const borderLGBM = 'rgba(240, 134, 46, 1)';
+    const colorOtros = 'rgba(80, 95, 120, 0.5)'; // Azul grisáceo
+    const borderOtros = 'rgba(80, 95, 120, 0.8)';
+    
+    const colorLGBM2 = 'rgba(240, 60, 46, 0.8)'; // Tono rojizo para la métrica secundaria
+    const colorOtros2 = 'rgba(60, 75, 95, 0.5)';
+
+    // Configuraciones base de Chart.js
+    Chart.defaults.color = '#8a94a6';
+    Chart.defaults.font.family = "'Space Mono', monospace";
+    Chart.defaults.font.size = 12;
+    
+    const scaleOptions = {
+        x: {
+            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+            beginAtZero: true,
+            max: 1.0,
+            ticks: {
+                callback: function(value) { return (value * 100) + '%'; }
+            }
+        },
+        y: {
+            grid: { display: false }
+        }
+    };
+
+    // --- GRÁFICA 1: CLASIFICAR RIESGO ---
+    new Chart(document.getElementById('chartNivel').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: mNivel.map(m => m.Modelo),
+            datasets: [
+                {
+                    label: 'Tasa de Acierto (Accuracy)',
+                    data: mNivel.map(m => m.Accuracy),
+                    backgroundColor: mNivel.map(m => m.Modelo.includes('LightGBM') ? colorLGBM : colorOtros),
+                    borderColor: mNivel.map(m => m.Modelo.includes('LightGBM') ? borderLGBM : borderOtros),
+                    borderWidth: 1
+                },
+                {
+                    label: 'Puntaje Curva ROC (AUC)',
+                    data: mNivel.map(m => m["AUC (macro OVR)"]),
+                    backgroundColor: mNivel.map(m => m.Modelo.includes('LightGBM') ? colorLGBM2 : colorOtros2),
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top' },
+                tooltip: { 
+                    callbacks: {
+                        label: function(ctx) { return ctx.dataset.label + ': ' + (ctx.raw * 100).toFixed(1) + '%'; }
+                    }
+                }
+            },
+            scales: scaleOptions
+        }
+    });
+
+    // --- GRÁFICA 2: DÍA / NOCHE ---
+    new Chart(document.getElementById('chartDiaNoche').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: mDiaNoche.map(m => m.Modelo),
+            datasets: [
+                {
+                    label: 'Tasa de Acierto (Accuracy)',
+                    data: mDiaNoche.map(m => m.Accuracy),
+                    backgroundColor: mDiaNoche.map(m => m.Modelo.includes('LightGBM') ? colorLGBM : colorOtros),
+                    borderColor: mDiaNoche.map(m => m.Modelo.includes('LightGBM') ? borderLGBM : borderOtros),
+                    borderWidth: 1
+                },
+                {
+                    label: 'Puntaje Curva ROC (AUC)',
+                    data: mDiaNoche.map(m => m.AUC),
+                    backgroundColor: mDiaNoche.map(m => m.Modelo.includes('LightGBM') ? colorLGBM2 : colorOtros2),
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top' },
+                tooltip: { 
+                    callbacks: {
+                        label: function(ctx) { return ctx.dataset.label + ': ' + (ctx.raw * 100).toFixed(1) + '%'; }
+                    }
+                }
+            },
+            scales: scaleOptions
+        }
+    });
+
+    // --- GRÁFICA 3: REGRESIÓN ---
+    new Chart(document.getElementById('chartRegresion').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: mReg.map(m => m.Modelo),
+            datasets: [{
+                label: 'Capacidad de Predicción (R-Cuadrado)',
+                data: mReg.map(m => m.R2),
+                backgroundColor: mReg.map(m => m.Modelo.includes('LightGBM') ? colorLGBM : colorOtros),
+                borderColor: mReg.map(m => m.Modelo.includes('LightGBM') ? borderLGBM : borderOtros),
+                borderWidth: 1
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top' },
+                tooltip: { 
+                    callbacks: {
+                        label: function(ctx) { return ctx.dataset.label + ': ' + ctx.raw.toFixed(3); }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                    min: 0,
+                    max: 1.0,
+                    ticks: {
+                        callback: function(value) { return value.toFixed(1); }
+                    }
+                },
+                y: { grid: { display: false } }
+            }
+        }
+    });
+</script>
+{% endblock %}

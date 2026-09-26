@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>F — Satélite Térmico</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#04060B; --dim:#5A6B85; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:#C9D6E8; font-family:'Rajdhani',sans-serif; position:relative; overflow-x:hidden; }
+  .stars { position:fixed; inset:0; z-index:0;
+    background-image: radial-gradient(1px 1px at 12% 22%, #fff 100%, transparent), radial-gradient(1px 1px at 68% 12%, #fff 100%, transparent),
+      radial-gradient(1px 1px at 38% 68%, #fff 100%, transparent), radial-gradient(1px 1px at 82% 52%, #fff 100%, transparent),
+      radial-gradient(1px 1px at 8% 82%, #fff 100%, transparent), radial-gradient(1px 1px at 58% 38%, #fff 100%, transparent),
+      radial-gradient(1px 1px at 92% 28%, #fff 100%, transparent), radial-gradient(1px 1px at 28% 48%, #fff 100%, transparent);
+    opacity:.55; }
+  .mono { font-family:'Space Mono',monospace; }
+  .wrap { max-width: 980px; margin:0 auto; padding: 0 26px; position:relative; z-index:1; }
+  header { padding:18px 0; border-bottom:1px solid rgba(201,214,232,0.12); display:flex; justify-content:space-between; align-items:center; }
+  .logo { font-family:'Space Mono',monospace; font-size:12px; letter-spacing:.08em; color:#7FA8D6; }
+  .legend { display:flex; gap:0; font-family:'Space Mono',monospace; font-size:9px; }
+  .legend span { padding:4px 8px; }
+  .hero { padding:60px 0 20px; text-align:center; }
+  .tag { font-family:'Space Mono',monospace; font-size:11px; letter-spacing:.22em; color:#FFB454; margin-bottom:18px; }
+  h1 { font-weight:700; font-size:clamp(30px,5.2vw,50px); margin:0 0 16px; color:#fff; }
+  .lede { font-family:'Space Mono',monospace; font-size:12px; color:var(--dim); max-width:54ch; margin:0 auto 40px; line-height:1.8; }
+  .night-map { height:280px; border:1px solid rgba(127,168,214,0.2); position:relative; background:radial-gradient(ellipse at 50% 40%, #0B1526, #04070E 75%); margin-bottom:40px; }
+  .light { position:absolute; width:8px; height:8px; border-radius:50%; }
+  .l-cold { background:#5B7EC9; box-shadow:0 0 10px 3px rgba(91,126,201,.5); }
+  .l-warm { background:#F0862E; box-shadow:0 0 12px 4px rgba(240,134,46,.55); }
+  .l-hot  { background:#FFE066; box-shadow:0 0 16px 6px rgba(255,224,102,.7); width:10px; height:10px; }
+  .readout { display:grid; grid-template-columns:repeat(4,1fr); border:1px solid rgba(127,168,214,0.2); }
+  .readout div { padding:16px 12px; border-right:1px solid rgba(127,168,214,0.2); font-family:'Space Mono',monospace; }
+  .readout div:last-child{border-right:none;}
+  .readout .lbl { font-size:9px; color:var(--dim); margin-bottom:6px; }
+  .readout .val { font-size:18px; font-weight:700; color:#FFB454; }
+  @media (max-width:700px){ .readout{grid-template-columns:repeat(2,1fr);} .legend{display:none;} }
+</style>
+</head>
+<body>
+<div class="stars"></div>
+<header class="wrap">
+  <div class="logo">◐ FIRMS // PASE NOCTURNO</div>
+  <div class="legend">
+    <span style="background:#1B2A4A;color:#5B7EC9">FRÍO</span>
+    <span style="background:#4A2A0F;color:#F0862E">CÁLIDO</span>
+    <span style="background:#5A4A0F;color:#FFE066">CRÍTICO</span>
+  </div>
+</header>
+<div class="hero"><div class="wrap">
+  <div class="tag">LA TIERRA DE NOCHE — CODIFICADO POR INTENSIDAD</div>
+  <h1>Cada luz es un dato real, no solo un punto</h1>
+  <p class="lede">El color de cada foco no es aleatorio: el brillo y el tono representan directamente la intensidad térmica detectada — igual que verías las ciudades desde el espacio, pero para el fuego.</p>
+  <div class="night-map">
+    <div class="light l-cold" style="top:25%;left:18%;"></div>
+    <div class="light l-warm" style="top:45%;left:32%;"></div>
+    <div class="light l-hot" style="top:38%;left:48%;"></div>
+    <div class="light l-warm" style="top:60%;left:58%;"></div>
+    <div class="light l-hot" style="top:32%;left:66%;"></div>
+    <div class="light l-cold" style="top:65%;left:25%;"></div>
+    <div class="light l-warm" style="top:22%;left:58%;"></div>
+    <div class="light l-hot" style="top:52%;left:40%;"></div>
+  </div>
+  <div class="readout">
+    <div><div class="lbl">FOCOS FRÍOS (&lt;280K)</div><div class="val">212</div></div>
+    <div><div class="lbl">CÁLIDOS (280-330K)</div><div class="val">640</div></div>
+    <div><div class="lbl">CRÍTICOS (&gt;330K)</div><div class="val">352</div></div>
+    <div><div class="lbl">TOTAL DETECTADO</div><div class="val">1,204</div></div>
+  </div>
+</div></div>
+</body>
+</html>

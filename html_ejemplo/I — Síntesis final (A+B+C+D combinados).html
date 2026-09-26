@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>I — Síntesis Final</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#050608; --amber:#F0862E; --dim:#5A6B85; --dim2:#5C4530;
+    padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:#C9D6E8; font-family:'Rajdhani',sans-serif; position:relative; overflow-x:hidden; }
+  .stars { position:fixed; inset:0; z-index:0;
+    background-image: radial-gradient(1px 1px at 12% 22%, #fff 100%, transparent), radial-gradient(1px 1px at 68% 12%, #fff 100%, transparent),
+      radial-gradient(1px 1px at 38% 68%, #fff 100%, transparent), radial-gradient(1px 1px at 82% 52%, #fff 100%, transparent),
+      radial-gradient(1px 1px at 8% 82%, #fff 100%, transparent), radial-gradient(1px 1px at 58% 38%, #fff 100%, transparent);
+    opacity:.4; }
+  .mono { font-family:'Space Mono',monospace; }
+  .wrap { max-width: 1000px; margin:0 auto; padding: 0 26px; position:relative; z-index:1; }
+  header { padding:18px 0; border-bottom:1px solid rgba(201,214,232,0.12); display:flex; justify-content:space-between; align-items:center; }
+  .logo { font-family:'Space Mono',monospace; font-size:12px; letter-spacing:.08em; color:#7FA8D6; }
+  .legend { display:flex; font-family:'Space Mono',monospace; font-size:9px; }
+  .legend span { padding:4px 8px; }
+
+  .hero { padding:56px 0 40px; text-align:center; }
+  .tag { font-family:'Space Mono',monospace; font-size:11px; letter-spacing:.22em; color:var(--amber); margin-bottom:16px; }
+  h1 { font-weight:700; font-size:clamp(28px,5vw,46px); margin:0 0 14px; color:#fff; }
+  .lede { font-family:'Space Mono',monospace; font-size:12px; color:var(--dim); max-width:56ch; margin:0 auto 36px; line-height:1.8; }
+
+  .night-map { height:220px; border:1px solid rgba(127,168,214,0.2); position:relative; background:radial-gradient(ellipse at 50% 40%, #0B1526, #04070E 75%); margin-bottom:36px; }
+  .light { position:absolute; width:8px; height:8px; border-radius:50%; }
+  .l-cold { background:#5B7EC9; box-shadow:0 0 10px 3px rgba(91,126,201,.5); }
+  .l-warm { background:#F0862E; box-shadow:0 0 12px 4px rgba(240,134,46,.55); }
+  .l-hot  { background:#FFE066; box-shadow:0 0 16px 6px rgba(255,224,102,.7); width:10px; height:10px; }
+
+  .section-lbl { font-family:'Space Mono',monospace; font-size:11px; color:var(--dim); letter-spacing:.1em; margin-bottom:14px; display:flex; justify-content:space-between; }
+  .zones { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:44px; }
+  .zone { padding:20px 16px; border-radius:2px; }
+  .zone .t { font-family:'Space Mono',monospace; font-size:10px; letter-spacing:.06em; opacity:.85; margin-bottom:8px; }
+  .zone .v { font-size:22px; font-weight:700; }
+  .z1{ background:linear-gradient(135deg,#16222E,#0F1A24); color:#7FA8D6; }
+  .z2{ background:linear-gradient(135deg,#3A2A1B,#4A3520); color:#E8B85C; }
+  .z3{ background:linear-gradient(135deg,#6A2E17,#8A3A1B); color:#FF9A5C; }
+  .z4{ background:linear-gradient(135deg,#8A3A17,#B84A1B); color:#FFC46B; }
+  .z5{ background:linear-gradient(135deg,#B84A0F,#D65A0F); color:#FFE29A; }
+  .z6{ background:linear-gradient(135deg,#D65A0F,#F2790F); color:#fff; }
+
+  .term { border:1px solid var(--dim2); margin-bottom: 40px; }
+  .term-top { display:flex; justify-content:space-between; font-family:'Space Mono',monospace; font-size:11px; color:var(--dim2); padding:12px 20px; border-bottom:1px solid var(--dim2); }
+  .term-top .rec { color:#E8321F; }
+  table { width:100%; border-collapse: collapse; font-family:'Space Mono',monospace; font-size:12px; color:var(--amber); }
+  thead th { text-align:left; color:var(--dim2); font-weight:400; padding:10px 20px; border-bottom:1px solid var(--dim2); font-size:10px; }
+  tbody td { padding:9px 20px; border-bottom:1px dotted rgba(92,69,48,0.4); }
+  .sev { display:inline-block; width:7px; height:7px; border-radius:50%; margin-right:7px; }
+  .sev.low{background:#5B7EC9;} .sev.mid{background:#E8B85C;} .sev.high{background:#FF6A2E;} .sev.crit{background:#FFE066; box-shadow:0 0 6px #FFE066;}
+
+  @media (max-width:700px){ .zones{grid-template-columns:1fr 1fr;} .legend{display:none;} thead{display:none;} tbody td{display:block;padding:3px 20px;} tbody tr{padding:10px 0; display:block; border-bottom:1px solid var(--dim2);} }
+</style>
+</head>
+<body>
+<div class="stars"></div>
+<header class="wrap">
+  <div class="logo">◐ FIRMS // BOLIVIA — CONSOLA UNIFICADA</div>
+  <div class="legend">
+    <span style="background:#1B2A4A;color:#5B7EC9">FRÍO</span>
+    <span style="background:#4A2A0F;color:#F0862E">CÁLIDO</span>
+    <span style="background:#5A4A0F;color:#FFE066">CRÍTICO</span>
+  </div>
+</header>
+
+<div class="hero"><div class="wrap">
+  <div class="tag">SÍNTESIS — MAPA + ZONAS + LECTURA EN VIVO</div>
+  <h1>Todo el lenguaje visual, en una sola consola</h1>
+  <p class="lede">El mapa nocturno para ubicar, las zonas para comparar regiones, y el log en vivo para el detalle — todo bajo la misma lógica de color: frío a crítico.</p>
+
+  <div class="night-map">
+    <div class="light l-cold" style="top:25%;left:18%;"></div>
+    <div class="light l-warm" style="top:45%;left:32%;"></div>
+    <div class="light l-hot" style="top:38%;left:48%;"></div>
+    <div class="light l-warm" style="top:60%;left:58%;"></div>
+    <div class="light l-hot" style="top:32%;left:66%;"></div>
+    <div class="light l-cold" style="top:65%;left:25%;"></div>
+  </div>
+
+  <div class="section-lbl"><span>ACTIVIDAD POR REGIÓN</span><span>ÚLTIMOS 7 DÍAS</span></div>
+  <div class="zones">
+    <div class="zone z1"><div class="t">CHIQUITANÍA</div><div class="v">42</div></div>
+    <div class="zone z2"><div class="t">BENI</div><div class="v">168</div></div>
+    <div class="zone z3"><div class="t">SANTA CRUZ</div><div class="v">512</div></div>
+    <div class="zone z4"><div class="t">PANDO</div><div class="v">380</div></div>
+    <div class="zone z5"><div class="t">S. CRUZ NORTE</div><div class="v">890</div></div>
+    <div class="zone z6"><div class="t">GUARAYOS</div><div class="v">1,204</div></div>
+  </div>
+
+  <div class="section-lbl"><span>LECTURA EN VIVO DEL SENSOR</span><span></span></div>
+  <div class="term">
+    <div class="term-top"><span>DETECTION_LOG.TXT</span><span class="rec">● REC</span></div>
+    <table>
+      <thead><tr><th>SEV</th><th>ID</th><th>BRIGHTNESS</th><th>CONF.</th><th>FRP</th></tr></thead>
+      <tbody>
+        <tr><td><span class="sev crit"></span>CRÍTICO</td><td>#88213</td><td>361.2K</td><td>91%</td><td>42.1</td></tr>
+        <tr><td><span class="sev high"></span>ALTO</td><td>#88214</td><td>338.7K</td><td>84%</td><td>28.4</td></tr>
+        <tr><td><span class="sev mid"></span>MEDIO</td><td>#88215</td><td>305.4K</td><td>67%</td><td>11.2</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div></div>
+</body>
+</html>

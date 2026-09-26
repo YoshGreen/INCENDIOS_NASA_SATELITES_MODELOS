@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>H — Terminal Avanzado</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#0A0806; --amber:#F0862E; --dim:#5C4530; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--amber); font-family:'Space Mono',monospace; font-size:13px; }
+  .wrap { max-width: 860px; margin:0 auto; padding: 50px 26px; }
+  .frame { border:1px solid var(--dim); }
+  .top { display:flex; justify-content:space-between; font-size:11px; color:var(--dim); padding:14px 22px; border-bottom:1px solid var(--dim); }
+  .top .rec { color:#E8321F; }
+  .body-area { padding:26px 22px; }
+  h1 { font-size:19px; line-height:1.5; margin:0 0 22px; color:#FFC98E; font-weight:400; }
+  .cursor { display:inline-block; width:9px; height:1.1em; background:var(--amber); vertical-align:-2px; animation: b 1s step-start infinite; }
+  @keyframes b { 50%{opacity:0;} }
+  table { width:100%; border-collapse: collapse; font-size:12px; }
+  thead th { text-align:left; color:var(--dim); font-weight:400; padding:8px 6px; border-bottom:1px solid var(--dim); font-size:10px; letter-spacing:.05em; }
+  tbody td { padding:9px 6px; border-bottom:1px dotted rgba(92,69,48,0.5); }
+  .sev { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:8px; }
+  .sev.low { background:#5B7EC9; }
+  .sev.mid { background:#E8B85C; }
+  .sev.high { background:#FF6A2E; }
+  .sev.crit { background:#FFE066; box-shadow:0 0 6px #FFE066; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="frame">
+    <div class="top"><span>DETECTION_LOG.TXT</span><span class="rec">● REC EN VIVO</span></div>
+    <div class="body-area">
+      <h1>&gt; últimas 6 lecturas del sensor<span class="cursor"></span></h1>
+      <table>
+        <thead><tr><th>SEV</th><th>ID</th><th>BRIGHTNESS</th><th>CONF.</th><th>FRP</th><th>D/N</th></tr></thead>
+        <tbody>
+          <tr><td><span class="sev crit"></span>CRÍTICO</td><td>#88213</td><td>361.2K</td><td>91%</td><td>42.1</td><td>D</td></tr>
+          <tr><td><span class="sev high"></span>ALTO</td><td>#88214</td><td>338.7K</td><td>84%</td><td>28.4</td><td>D</td></tr>
+          <tr><td><span class="sev mid"></span>MEDIO</td><td>#88215</td><td>305.4K</td><td>67%</td><td>11.2</td><td>N</td></tr>
+          <tr><td><span class="sev low"></span>BAJO</td><td>#88216</td><td>278.9K</td><td>52%</td><td>3.8</td><td>N</td></tr>
+          <tr><td><span class="sev high"></span>ALTO</td><td>#88217</td><td>342.0K</td><td>88%</td><td>31.6</td><td>D</td></tr>
+          <tr><td><span class="sev mid"></span>MEDIO</td><td>#88218</td><td>299.1K</td><td>61%</td><td>9.4</td><td>D</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</body>
+</html>

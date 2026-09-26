@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% set active_page = 'anexo' %}
+
+{% block content %}
+<div class="wrap">
+  <div class="section-lbl">
+    <span>ANEXO TÉCNICO</span>
+    <span>CONTENIDO AVANZADO</span>
+  </div>
+  
+  <div class="warning-banner">
+    ⚠️ Esta sección contiene métricas técnicas de Machine Learning dirigidas a investigadores y analistas de datos.
+  </div>
+
+  <h1 style="font-size:clamp(22px,4vw,34px);color:#fff;margin:20px 0 10px;">Métricas completas de evaluación</h1>
+  <p class="lede">Tablas sin simplificar con todas las métricas de cada modelo evaluado.</p>
+
+  <!-- Regresión completa -->
+  <div class="section-lbl" style="margin-top: 40px;">
+    <span>REGRESIÓN — TODAS LAS MÉTRICAS</span>
+  </div>
+  
+  <div class="term">
+    <div class="term-top">
+      <span>REGRESION_FULL.TXT</span>
+    </div>
+    <div class="term-body" style="overflow-x: auto;">
+      <table class="term-table">
+        <thead>
+          <tr>
+            <th>MODELO</th>
+            <th>MAE</th>
+            <th>MSE</th>
+            <th>RMSE</th>
+            <th>R²</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m in metricas_reg %}
+          <tr class="{% if loop.first %}champion{% endif %}">
+            <td>{% if loop.first %}<span class="sev crit"></span>{% endif %}{{ m.Modelo }}</td>
+            <td>{{ m.MAE|round(4) }}</td>
+            <td>{{ m.MSE|round(4) }}</td>
+            <td>{{ m.RMSE|round(4) }}</td>
+            <td>{{ m.R2|round(4) }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Clasificación Día/Noche completa -->
+  <div class="section-lbl" style="margin-top: 40px;">
+    <span>CLASIFICACIÓN DÍA/NOCHE — TODAS LAS MÉTRICAS</span>
+  </div>
+  
+  <div class="term">
+    <div class="term-top">
+      <span>DAYNIGHT_FULL.TXT</span>
+    </div>
+    <div class="term-body" style="overflow-x: auto;">
+      <table class="term-table">
+        <thead>
+          <tr>
+            <th>MODELO</th>
+            <th>ACCURACY</th>
+            <th>PRECISION</th>
+            <th>RECALL</th>
+            <th>F1-SCORE</th>
+            <th>AUC</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m in metricas_dn %}
+          <tr class="{% if loop.first %}champion{% endif %}">
+            <td>{% if loop.first %}<span class="sev crit"></span>{% endif %}{{ m.Modelo }}</td>
+            <td>{{ (m.Accuracy * 100)|round(2) }}%</td>
+            <td>{{ (m.Precision * 100)|round(2) }}%</td>
+            <td>{{ (m.Recall * 100)|round(2) }}%</td>
+            <td>{{ (m['F1-Score'] * 100)|round(2) }}%</td>
+            <td>{{ (m.AUC * 100)|round(2) }}%</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Clasificación Nivel completa -->
+  <div class="section-lbl" style="margin-top: 40px;">
+    <span>CLASIFICACIÓN NIVEL — TODAS LAS MÉTRICAS</span>
+  </div>
+  
+  <div class="term">
+    <div class="term-top">
+      <span>NIVEL_FULL.TXT</span>
+    </div>
+    <div class="term-body" style="overflow-x: auto;">
+      <table class="term-table">
+        <thead>
+          <tr>
+            <th>MODELO</th>
+            <th>ACCURACY</th>
+            <th>PRECISION</th>
+            <th>RECALL</th>
+            <th>F1-SCORE</th>
+            <th>AUC</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m in metricas_nivel %}
+          <tr class="{% if loop.first %}champion{% endif %}">
+            <td>{% if loop.first %}<span class="sev crit"></span>{% endif %}{{ m.Modelo }}</td>
+            <td>{{ (m.Accuracy * 100)|round(2) }}%</td>
+            <td>{{ (m.Precision * 100)|round(2) }}%</td>
+            <td>{{ (m.Recall * 100)|round(2) }}%</td>
+            <td>{{ (m['F1-Score'] * 100)|round(2) }}%</td>
+            <td>{{ (m['AUC (macro OVR)'] * 100)|round(2) }}%</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

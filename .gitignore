@@ -1,0 +1,17 @@
+.vscode/
+venv/
+env/
+.venv/
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+*.env.*
+.pnpm-debug.log*
+
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
