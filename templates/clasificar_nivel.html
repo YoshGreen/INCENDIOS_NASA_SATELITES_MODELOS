@@ -3,149 +3,375 @@
 {% block title %}Clasificar Nivel de Riesgo — FIRMS // BOLIVIA{% endblock %}
 
 {% block content %}
+<style>
+.split-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    align-items: stretch;
+}
+@media (max-width: 800px) {
+    .split-layout { grid-template-columns: 1fr; }
+}
+.panel-left {
+    background: var(--bg2);
+    border: 1px solid var(--rule2);
+    padding: 24px;
+    border-radius: 4px;
+}
+.panel-right {
+    background: radial-gradient(circle at 50% 50%, #111A24, #050608);
+    border: 1px solid var(--rule2);
+    padding: 24px;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    min-height: 400px;
+}
+.test-cases {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+.btn-test {
+    background: #1B2A4A;
+    color: #7FA8D6;
+    border: 1px solid rgba(127, 168, 214, 0.3);
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.btn-test:hover { background: #2A3B5C; color: #fff; border-color: #7FA8D6; }
+
+/* Custom Range Slider */
+input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    background: transparent;
+}
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: var(--amber);
+    cursor: pointer;
+    margin-top: -6px;
+    box-shadow: 0 0 10px rgba(240,134,46,0.8);
+}
+input[type=range]::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 4px;
+    cursor: pointer;
+    background: rgba(240,134,46,0.3);
+    border-radius: 2px;
+}
+.range-val {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    color: var(--amber);
+    font-weight: bold;
+    float: right;
+}
+
+/* Spinner */
+.spinner {
+    border: 3px solid rgba(255,255,255,0.1);
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border-left-color: var(--amber);
+    animation: spin 1s linear infinite;
+    display: inline-block;
+    vertical-align: middle;
+}
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* Traffic Light LEDs */
+.led-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background: #0A0C10;
+    padding: 20px;
+    border-radius: 40px;
+    border: 2px solid #1A222C;
+    margin-bottom: 30px;
+}
+.led {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #111;
+    border: 2px solid #000;
+    box-shadow: inset 0 0 10px #000;
+    opacity: 0.3;
+    transition: all 0.3s ease;
+}
+.led.green.active {
+    background: #28a745;
+    box-shadow: 0 0 30px #28a745, inset 0 0 15px rgba(255,255,255,0.5);
+    opacity: 1;
+    animation: blink 2s infinite alternate;
+}
+.led.yellow.active {
+    background: #ffc107;
+    box-shadow: 0 0 30px #ffc107, inset 0 0 15px rgba(255,255,255,0.5);
+    opacity: 1;
+    animation: blink 2s infinite alternate;
+}
+.led.red.active {
+    background: #dc3545;
+    box-shadow: 0 0 40px #dc3545, inset 0 0 15px rgba(255,255,255,0.5);
+    opacity: 1;
+    animation: blink 1s infinite alternate;
+}
+@keyframes blink {
+    0% { filter: brightness(1); }
+    100% { filter: brightness(1.3); }
+}
+
+.prob-container {
+    width: 100%;
+    text-align: left;
+    margin-top: 15px;
+}
+.prob-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--dim);
+}
+.prob-bar-bg {
+    width: 100%;
+    height: 6px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 3px;
+    margin-bottom: 12px;
+}
+.prob-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 1s ease;
+}
+</style>
+
 <div class="wrap" style="padding: 40px 24px;">
     <div class="section-lbl">
         <span>CLASIFICACIÓN DE NIVEL DE RIESGO</span>
-        <span>MODELO: LIGHTGBM</span>
+        <span>CENTRO DE COMANDO</span>
     </div>
     
-    <h1 style="font-size:clamp(22px,4vw,34px);color:#fff;margin:0 0 10px;">¿Cuál es el nivel de riesgo de este foco?</h1>
-    <p class="lede" style="margin:0 0 30px;">Combina datos numéricos y categóricos del sensor para clasificar la detección en tres niveles: Bajo, Medio o Alto.</p>
+    <h1 style="font-size:clamp(22px,4vw,34px);color:#fff;margin:0 0 10px;">Monitor de Amenaza</h1>
+    <p class="lede" style="margin:0 0 30px;">Combina telemetría continua y variables categóricas para establecer el nivel de amenaza del foco detectado.</p>
     
-    <div class="form-card">
-        <form id="form-nivel">
-            <div class="form-grid">
-                <div class="form-group">
-                    <label>TEMPERATURA DE BRILLO (K)</label>
-                    <input type="number" name="brightness" step="0.1" required>
-                </div>
-                <div class="form-group">
-                    <label>TEMPERATURA DEL TERRENO (K)</label>
-                    <input type="number" name="bright_t31" step="0.1" required>
-                </div>
-                <div class="form-group">
-                    <label>ANCHO DE ESCANEO (KM)</label>
-                    <input type="number" name="scan" step="0.01" required>
-                </div>
-                <div class="form-group">
-                    <label>PROFUNDIDAD DE ESCANEO (KM)</label>
-                    <input type="number" name="track" step="0.01" required>
-                </div>
-                <div class="form-group">
-                    <label>CONFIANZA DE DETECCIÓN (%)</label>
-                    <input type="number" name="confidence_num" step="1" min="0" max="100" required>
-                </div>
-                <div class="form-group">
-                    <label>MES (1-12)</label>
-                    <input type="number" name="mes" step="1" min="1" max="12" placeholder="ej: 8" required>
-                </div>
-                <div class="form-group">
-                    <label>HORA (0-23)</label>
-                    <input type="number" name="hora" step="1" min="0" max="23" placeholder="ej: 14" required>
-                </div>
-                <div class="form-group">
-                    <label>MOMENTO DEL DÍA</label>
-                    <select name="daynight" required style="width:100%; padding:8px; background:rgba(0,0,0,0.5); border:1px solid #334; color:#fff;">
-                        <option value="D">Día</option>
-                        <option value="N">Noche</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>SATÉLITE</label>
-                    <select name="satellite" required style="width:100%; padding:8px; background:rgba(0,0,0,0.5); border:1px solid #334; color:#fff;">
-                        <option value="N20">Suomi NPP (N20)</option>
-                        <option value="N21">NOAA-20 (N21)</option>
-                        <option value="SNPP">Suomi NPP (SNPP)</option>
-                        <option value="Aqua">Aqua</option>
-                        <option value="Terra">Terra</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>INSTRUMENTO</label>
-                    <select name="instrument" required style="width:100%; padding:8px; background:rgba(0,0,0,0.5); border:1px solid #334; color:#fff;">
-                        <option value="VIIRS">VIIRS</option>
-                        <option value="MODIS">MODIS</option>
-                        <option value="SNPP">SNPP</option>
-                    </select>
-                </div>
-                <div class="form-group" style="grid-column: 1 / -1; margin-top: 10px;">
-                    <button type="submit" class="btn-predict" style="width: 100%;">⚠️ CLASIFICAR NIVEL</button>
-                </div>
+    <div class="split-layout">
+        <!-- Panel Izquierdo: Inputs -->
+        <div class="panel-left">
+            <div class="test-cases">
+                <button type="button" class="btn-test" onclick="cargarCaso(360.5, 305.0, 0.45, 0.41, 100, 9, 14, 'D', 'N20', 'VIIRS')">🔴 Cargar Amenaza Alta</button>
+                <button type="button" class="btn-test" onclick="cargarCaso(320.1, 290.5, 0.50, 0.48, 75, 5, 22, 'N', 'Terra', 'MODIS')">🟢 Cargar Amenaza Baja</button>
             </div>
-        </form>
-    </div>
-    
-    <div id="resultado-nivel" style="margin-top:24px; display:none; text-align:center; padding: 24px; background: rgba(0,0,0,0.3); border-radius: 4px; border: 1px solid #334;">
-        <div style="display:flex; justify-content:center; align-items:center; gap:12px; margin-bottom:16px;">
-            <div id="nivel-dot" class="sev" style="width: 24px; height: 24px;"></div>
-            <h2 id="nivel-texto" style="margin:0; font-family:'Space Mono', monospace; font-size: 24px; letter-spacing: 1px;"></h2>
+            <form id="form-nivel">
+                <div class="form-grid">
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label>Temperatura de Brillo</label>
+                        <input type="number" id="brightness" name="brightness" step="0.1" placeholder="320.5" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label>Temperatura Terreno</label>
+                        <input type="number" id="bright_t31" name="bright_t31" step="0.1" placeholder="295.0" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label>Ancho Escaneo</label>
+                        <input type="number" id="scan" name="scan" step="0.01" placeholder="0.39" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label>Prof. Escaneo</label>
+                        <input type="number" id="track" name="track" step="0.01" placeholder="0.36" required>
+                    </div>
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label>Confianza Satelital (%) <span class="range-val" id="conf-val">85%</span></label>
+                    <input type="range" id="confidence_num" name="confidence_num" min="0" max="100" value="85" oninput="document.getElementById('conf-val').innerText = this.value + '%'">
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label>Mes <span class="range-val" id="mes-val">8</span></label>
+                    <input type="range" id="mes" name="mes" min="1" max="12" value="8" oninput="document.getElementById('mes-val').innerText = this.value">
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 25px;">
+                    <label>Hora UTC <span class="range-val" id="hora-val">14:00</span></label>
+                    <input type="range" id="hora" name="hora" min="0" max="23" value="14" oninput="document.getElementById('hora-val').innerText = this.value + ':00'">
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label>Momento</label>
+                        <select id="daynight" name="daynight" required style="width:100%; padding:8px; background:rgba(0,0,0,0.5); border:1px solid #334; color:#fff;">
+                            <option value="D">Día</option>
+                            <option value="N">Noche</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label>Satélite</label>
+                        <select id="satellite" name="satellite" required style="width:100%; padding:8px; background:rgba(0,0,0,0.5); border:1px solid #334; color:#fff;">
+                            <option value="N20">Suomi NPP (N20)</option>
+                            <option value="N21">NOAA-20 (N21)</option>
+                            <option value="SNPP">Suomi NPP (SNPP)</option>
+                            <option value="Aqua">Aqua</option>
+                            <option value="Terra">Terra</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label>Instrumento</label>
+                        <select id="instrument" name="instrument" required style="width:100%; padding:8px; background:rgba(0,0,0,0.5); border:1px solid #334; color:#fff;">
+                            <option value="VIIRS">VIIRS</option>
+                            <option value="MODIS">MODIS</option>
+                            <option value="SNPP">SNPP</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-predict" style="width: 100%; justify-content: center;">
+                    <span id="btn-text">⚠️ INICIAR ANÁLISIS DE RIESGO</span>
+                </button>
+            </form>
         </div>
-        <p id="nivel-desc" style="margin:0; font-size: 14px; opacity: 0.8;"></p>
+
+        <!-- Panel Derecho: Resultados -->
+        <div class="panel-right" id="result-panel">
+            <div style="font-family:'Space Mono', monospace; font-size: 11px; color: var(--dim); position: absolute; top: 20px; left: 20px; letter-spacing: 2px;">ANÁLISIS EN TIEMPO REAL</div>
+            
+            <div class="led-container">
+                <div class="led red" id="led-alto"></div>
+                <div class="led yellow" id="led-medio"></div>
+                <div class="led green" id="led-bajo"></div>
+            </div>
+            
+            <div id="resultado-texto" style="font-family:'Space Mono', monospace; font-size: 24px; font-weight: bold; margin-bottom: 5px; color: var(--dim);">--</div>
+            
+            <div class="prob-container">
+                <div class="prob-row"><span>Riesgo Bajo</span><span id="p-bajo">0%</span></div>
+                <div class="prob-bar-bg"><div class="prob-fill" id="fill-bajo" style="width:0%; background:#28a745;"></div></div>
+                
+                <div class="prob-row"><span>Riesgo Medio</span><span id="p-medio">0%</span></div>
+                <div class="prob-bar-bg"><div class="prob-fill" id="fill-medio" style="width:0%; background:#ffc107;"></div></div>
+                
+                <div class="prob-row"><span>Riesgo Alto</span><span id="p-alto">0%</span></div>
+                <div class="prob-bar-bg"><div class="prob-fill" id="fill-alto" style="width:0%; background:#dc3545;"></div></div>
+            </div>
+        </div>
     </div>
 </div>
+{% endblock %}
 
+{% block scripts %}
 <script>
+function cargarCaso(b, t31, s, t, conf, m, h, dn, sat, inst) {
+    document.getElementById('brightness').value = b;
+    document.getElementById('bright_t31').value = t31;
+    document.getElementById('scan').value = s;
+    document.getElementById('track').value = t;
+    
+    document.getElementById('confidence_num').value = conf;
+    document.getElementById('conf-val').innerText = conf + '%';
+    
+    document.getElementById('mes').value = m;
+    document.getElementById('mes-val').innerText = m;
+    
+    document.getElementById('hora').value = h;
+    document.getElementById('hora-val').innerText = h + ':00';
+    
+    document.getElementById('daynight').value = dn;
+    document.getElementById('satellite').value = sat;
+    document.getElementById('instrument').value = inst;
+}
+
 document.getElementById('form-nivel').addEventListener('submit', async function(e) {
     e.preventDefault();
     const btn = this.querySelector('button');
+    const btnText = document.getElementById('btn-text');
+    
     btn.disabled = true;
-    btn.textContent = 'Procesando...';
+    btnText.innerHTML = '<div class="spinner"></div> ANALIZANDO...';
     
     const formData = new FormData(this);
     const data = Object.fromEntries(formData);
     
-    try {
-        const resp = await fetch('/api/clasificar-nivel', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(data)
-        });
-        const result = await resp.json();
-        
-        if (result.error) { 
-            alert(result.error); 
-            return; 
+    setTimeout(async () => {
+        try {
+            const resp = await fetch('/api/clasificar-nivel', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
+            const result = await resp.json();
+            
+            if (result.error) { 
+                alert(result.error); 
+                return; 
+            }
+            
+            const ledBajo = document.getElementById('led-bajo');
+            const ledMedio = document.getElementById('led-medio');
+            const ledAlto = document.getElementById('led-alto');
+            const texto = document.getElementById('resultado-texto');
+            
+            // Reset LEDs
+            ledBajo.className = 'led green';
+            ledMedio.className = 'led yellow';
+            ledAlto.className = 'led red';
+            
+            if (result.nivel === 0) {
+                ledBajo.classList.add('active');
+                texto.textContent = "ALERTA VERDE";
+                texto.style.color = '#28a745';
+            } else if (result.nivel === 1) {
+                ledMedio.classList.add('active');
+                texto.textContent = "ALERTA AMARILLA";
+                texto.style.color = '#ffc107';
+            } else {
+                ledAlto.classList.add('active');
+                texto.textContent = "ALERTA ROJA";
+                texto.style.color = '#dc3545';
+            }
+            
+            if (result.probabilidades && result.probabilidades.length >= 3) {
+                const pbajo = (result.probabilidades[0] * 100).toFixed(1);
+                const pmedio = (result.probabilidades[1] * 100).toFixed(1);
+                const palto = (result.probabilidades[2] * 100).toFixed(1);
+                
+                document.getElementById('p-bajo').innerText = pbajo + '%';
+                document.getElementById('fill-bajo').style.width = pbajo + '%';
+                
+                document.getElementById('p-medio').innerText = pmedio + '%';
+                document.getElementById('fill-medio').style.width = pmedio + '%';
+                
+                document.getElementById('p-alto').innerText = palto + '%';
+                document.getElementById('fill-alto').style.width = palto + '%';
+            }
+            
+        } catch(err) { 
+            alert('Error al conectar con el servidor'); 
+        } finally { 
+            btn.disabled = false; 
+            btnText.innerHTML = '⚠️ INICIAR ANÁLISIS DE RIESGO'; 
         }
-        
-        const resDiv = document.getElementById('resultado-nivel');
-        const dot = document.getElementById('nivel-dot');
-        const texto = document.getElementById('nivel-texto');
-        const desc = document.getElementById('nivel-desc');
-        
-        dot.className = 'sev'; // reset classes
-        
-        let color = '#fff';
-        if (result.nivel === 0) {
-            dot.classList.add('low');
-            texto.textContent = "NIVEL BAJO";
-            color = '#7FA8D6';
-        } else if (result.nivel === 1) {
-            dot.classList.add('mid');
-            texto.textContent = "NIVEL MEDIO";
-            color = '#E8B85C';
-        } else {
-            dot.classList.add('high');
-            texto.textContent = "NIVEL ALTO";
-            color = '#F2790F';
-        }
-        
-        texto.style.color = color;
-        
-        let probsText = '';
-        if (result.probabilidades && result.probabilidades.length >= 3) {
-            probsText = `Probabilidades — Bajo: ${(result.probabilidades[0]*100).toFixed(1)}% | Medio: ${(result.probabilidades[1]*100).toFixed(1)}% | Alto: ${(result.probabilidades[2]*100).toFixed(1)}%`;
-        }
-        
-        desc.textContent = probsText || result.descripcion;
-        
-        resDiv.style.display = 'block';
-        
-    } catch(err) { 
-        alert('Error al conectar con el servidor'); 
-    } finally { 
-        btn.disabled = false; 
-        btn.textContent = '⚠️ CLASIFICAR NIVEL'; 
-    }
+    }, 1000);
 });
 </script>
 {% endblock %}

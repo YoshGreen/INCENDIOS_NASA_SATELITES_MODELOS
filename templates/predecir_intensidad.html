@@ -3,103 +3,264 @@
 {% block title %}Predecir Intensidad — FIRMS // BOLIVIA{% endblock %}
 
 {% block content %}
+<style>
+.split-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    align-items: stretch;
+}
+@media (max-width: 800px) {
+    .split-layout { grid-template-columns: 1fr; }
+}
+.panel-left {
+    background: var(--bg2);
+    border: 1px solid var(--rule2);
+    padding: 24px;
+    border-radius: 4px;
+}
+.panel-right {
+    background: radial-gradient(circle at 50% 50%, #111A24, #050608);
+    border: 1px solid var(--rule2);
+    padding: 24px;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    min-height: 400px;
+}
+.test-cases {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+.btn-test {
+    background: #1B2A4A;
+    color: #7FA8D6;
+    border: 1px solid rgba(127, 168, 214, 0.3);
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.btn-test:hover { background: #2A3B5C; color: #fff; border-color: #7FA8D6; }
+
+/* Custom Range Slider */
+input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    background: transparent;
+}
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: var(--amber);
+    cursor: pointer;
+    margin-top: -6px;
+    box-shadow: 0 0 10px rgba(240,134,46,0.8);
+}
+input[type=range]::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 4px;
+    cursor: pointer;
+    background: rgba(240,134,46,0.3);
+    border-radius: 2px;
+}
+.range-val {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    color: var(--amber);
+    font-weight: bold;
+    float: right;
+}
+
+/* Spinner */
+.spinner {
+    border: 3px solid rgba(255,255,255,0.1);
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border-left-color: var(--amber);
+    animation: spin 1s linear infinite;
+    display: inline-block;
+    vertical-align: middle;
+}
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+.gauge-chart-container {
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
+    position: relative;
+}
+.gauge-value-overlay {
+    position: absolute;
+    bottom: 10%;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 28px;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 0 0 10px rgba(255,255,255,0.3);
+}
+.gauge-desc {
+    font-size: 14px;
+    color: var(--dim);
+    margin-top: 10px;
+    font-family: 'Space Mono', monospace;
+}
+</style>
+
 <div class="wrap" style="padding: 40px 24px;">
     <div class="section-lbl">
         <span>PREDICCIÓN DE INTENSIDAD</span>
-        <span>MODELO: LIGHTGBM</span>
+        <span>CENTRO DE COMANDO</span>
     </div>
     
-    <h1 style="font-size:clamp(22px,4vw,34px);color:#fff;margin:0 0 10px;">¿Qué tan intenso es este foco de calor?</h1>
-    <p class="lede" style="margin:0 0 30px;">Ingresa los datos del sensor satelital y el modelo predecirá la potencia radiativa del fuego (FRP) en megawatts.</p>
+    <h1 style="font-size:clamp(22px,4vw,34px);color:#fff;margin:0 0 10px;">Monitor de Potencia Radiativa</h1>
+    <p class="lede" style="margin:0 0 30px;">Ingresa la telemetría del sensor para estimar la Potencia Radiativa del Fuego (FRP) en Megawatts.</p>
     
-    <div class="form-card">
-        <form id="form-intensidad">
-            <div class="form-grid">
-                <div class="form-group">
-                    <label>TEMPERATURA DE BRILLO (K)</label>
-                    <input type="number" name="brightness" step="0.1" placeholder="ej: 320.5" required>
-                </div>
-                <div class="form-group">
-                    <label>TEMPERATURA DEL TERRENO CIRCUNDANTE (K)</label>
-                    <input type="number" name="bright_t31" step="0.1" placeholder="ej: 295.0" required>
-                </div>
-                <div class="form-group">
-                    <label>ANCHO DE ESCANEO (KM)</label>
-                    <input type="number" name="scan" step="0.01" placeholder="ej: 0.39" required>
-                </div>
-                <div class="form-group">
-                    <label>PROFUNDIDAD DE ESCANEO (KM)</label>
-                    <input type="number" name="track" step="0.01" placeholder="ej: 0.36" required>
-                </div>
-                <div class="form-group">
-                    <label>CONFIANZA DE DETECCIÓN SATELITAL (%)</label>
-                    <input type="number" name="confidence_num" step="1" min="0" max="100" placeholder="ej: 85" required>
-                </div>
-                <div class="form-group" style="display: flex; align-items: flex-end;">
-                    <button type="submit" class="btn-predict" style="width: 100%;">🔥 PREDECIR INTENSIDAD</button>
-                </div>
+    <div class="split-layout">
+        <!-- Panel Izquierdo: Inputs -->
+        <div class="panel-left">
+            <div class="test-cases">
+                <button type="button" class="btn-test" onclick="cargarCaso(340.5, 298.0, 0.40, 0.38, 100)">🔥 Cargar Caso Crítico</button>
+                <button type="button" class="btn-test" onclick="cargarCaso(315.2, 295.1, 0.60, 0.55, 65)">🌿 Cargar Caso Leve</button>
             </div>
-        </form>
-    </div>
-    
-    <div id="resultado-intensidad" class="result-card" style="display:none; margin-top: 24px; padding: 24px; border-radius: 4px; text-align: center;">
-        <div class="result-label" style="font-family:'Space Mono', monospace; font-size: 12px; letter-spacing: 1px; opacity: 0.8; margin-bottom: 8px;">POTENCIA RADIATIVA ESTIMADA</div>
-        <div id="resultado-valor" class="result-value" style="font-family:'Space Mono', monospace; font-size: 32px; font-weight: bold; margin-bottom: 12px;"></div>
-        <div id="resultado-desc" class="result-desc" style="font-size: 14px; opacity: 0.9;"></div>
+            <form id="form-intensidad">
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label>Temperatura de Brillo (K)</label>
+                    <input type="number" id="brightness" name="brightness" step="0.1" placeholder="ej: 320.5" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label>Temperatura del Terreno (K)</label>
+                    <input type="number" id="bright_t31" name="bright_t31" step="0.1" placeholder="ej: 295.0" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label>Ancho de Escaneo (KM)</label>
+                    <input type="number" id="scan" name="scan" step="0.01" placeholder="ej: 0.39" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label>Profundidad de Escaneo (KM)</label>
+                    <input type="number" id="track" name="track" step="0.01" placeholder="ej: 0.36" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 25px;">
+                    <label>Confianza Satelital (%) <span class="range-val" id="conf-val">85%</span></label>
+                    <input type="range" id="confidence_num" name="confidence_num" min="0" max="100" value="85" oninput="document.getElementById('conf-val').innerText = this.value + '%'">
+                </div>
+                
+                <button type="submit" class="btn-predict" style="width: 100%; justify-content: center;">
+                    <span id="btn-text">⚡ INICIAR CÁLCULO</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Panel Derecho: Resultados -->
+        <div class="panel-right" id="result-panel">
+            <div style="font-family:'Space Mono', monospace; font-size: 11px; color: var(--dim); position: absolute; top: 20px; left: 20px; letter-spacing: 2px;">ANÁLISIS EN TIEMPO REAL</div>
+            
+            <div class="gauge-chart-container">
+                <canvas id="gaugeChart"></canvas>
+                <div class="gauge-value-overlay" id="resultado-valor">-- MW</div>
+            </div>
+            <div id="resultado-desc" class="gauge-desc">Esperando telemetría...</div>
+        </div>
     </div>
 </div>
+{% endblock %}
 
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+// Inicializar Chart.js Gauge
+const ctx = document.getElementById('gaugeChart').getContext('2d');
+const gaugeChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: ['FRP'],
+        datasets: [{
+            data: [0, 100],
+            backgroundColor: ['#5A6B85', '#0D0F10'],
+            borderWidth: 0,
+            circumference: 180,
+            rotation: 270
+        }]
+    },
+    options: {
+        responsive: true,
+        cutout: '80%',
+        plugins: { tooltip: { enabled: false }, legend: { display: false } },
+        animation: { duration: 1500, easing: 'easeOutQuart' }
+    }
+});
+
+function cargarCaso(b, t31, s, t, conf) {
+    document.getElementById('brightness').value = b;
+    document.getElementById('bright_t31').value = t31;
+    document.getElementById('scan').value = s;
+    document.getElementById('track').value = t;
+    document.getElementById('confidence_num').value = conf;
+    document.getElementById('conf-val').innerText = conf + '%';
+}
+
 document.getElementById('form-intensidad').addEventListener('submit', async function(e) {
     e.preventDefault();
     const btn = this.querySelector('button');
+    const btnText = document.getElementById('btn-text');
+    
     btn.disabled = true;
-    btn.textContent = 'Procesando...';
+    btnText.innerHTML = '<div class="spinner"></div> CALCULANDO...';
     
     const formData = new FormData(this);
     const data = Object.fromEntries(formData);
     
-    try {
-        const resp = await fetch('/api/predecir-intensidad', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(data)
-        });
-        const result = await resp.json();
-        
-        if (result.error) { 
-            alert(result.error); 
-            return; 
+    setTimeout(async () => {
+        try {
+            const resp = await fetch('/api/predecir-intensidad', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
+            const result = await resp.json();
+            
+            if (result.error) { 
+                alert(result.error); 
+                return; 
+            }
+            
+            const colors = { 'bajo': '#7FA8D6', 'medio': '#E8B85C', 'alto': '#FF6A2E', 'critico': '#E8321F' };
+            const color = colors[result.nivel] || '#E8B85C';
+            
+            const maxFRP = 100;
+            let val = result.frp_mw;
+            let displayVal = val > maxFRP ? maxFRP : val;
+            
+            gaugeChart.data.datasets[0].data = [displayVal, maxFRP - displayVal];
+            gaugeChart.data.datasets[0].backgroundColor = [color, '#0D0F10'];
+            gaugeChart.update();
+            
+            document.getElementById('resultado-valor').textContent = result.frp_mw.toFixed(1) + ' MW';
+            document.getElementById('resultado-valor').style.color = color;
+            document.getElementById('resultado-desc').textContent = result.descripcion;
+            
+        } catch(err) { 
+            alert('Error al conectar con el servidor'); 
+        } finally { 
+            btn.disabled = false; 
+            btnText.innerHTML = '⚡ INICIAR CÁLCULO'; 
         }
-        
-        const card = document.getElementById('resultado-intensidad');
-        const gradients = {
-            'bajo': 'linear-gradient(135deg,#16222E,#0F1A24)',
-            'medio': 'linear-gradient(135deg,#3A2A1B,#4A3520)',
-            'alto': 'linear-gradient(135deg,#8A3A17,#B84A1B)',
-            'critico': 'linear-gradient(135deg,#C24A0F,#F2790F)'
-        };
-        const colors = {
-            'bajo':'#7FA8D6',
-            'medio':'#E8B85C',
-            'alto':'#FFC46B',
-            'critico':'#fff'
-        };
-        
-        card.style.background = gradients[result.nivel] || gradients['medio'];
-        card.style.color = colors[result.nivel] || '#E8B85C';
-        
-        document.getElementById('resultado-valor').textContent = result.frp_mw.toFixed(1) + ' MW';
-        document.getElementById('resultado-desc').textContent = result.descripcion;
-        
-        card.classList.add('show');
-        card.style.display = 'block';
-    } catch(err) { 
-        alert('Error al conectar con el servidor'); 
-    } finally { 
-        btn.disabled = false; 
-        btn.textContent = '🔥 PREDECIR INTENSIDAD'; 
-    }
+    }, 1000);
 });
 </script>
 {% endblock %}

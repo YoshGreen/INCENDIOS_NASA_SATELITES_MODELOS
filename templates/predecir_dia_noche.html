@@ -3,108 +3,281 @@
 {% block title %}Clasificar Día/Noche — FIRMS // BOLIVIA{% endblock %}
 
 {% block content %}
+<style>
+.split-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    align-items: stretch;
+}
+@media (max-width: 800px) {
+    .split-layout { grid-template-columns: 1fr; }
+}
+.panel-left {
+    background: var(--bg2);
+    border: 1px solid var(--rule2);
+    padding: 24px;
+    border-radius: 4px;
+}
+.panel-right {
+    background: radial-gradient(circle at 50% 50%, #111A24, #050608);
+    border: 1px solid var(--rule2);
+    padding: 24px;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    min-height: 400px;
+}
+.test-cases {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+.btn-test {
+    background: #1B2A4A;
+    color: #7FA8D6;
+    border: 1px solid rgba(127, 168, 214, 0.3);
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.btn-test:hover { background: #2A3B5C; color: #fff; border-color: #7FA8D6; }
+
+/* Custom Range Slider */
+input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    background: transparent;
+}
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: var(--amber);
+    cursor: pointer;
+    margin-top: -6px;
+    box-shadow: 0 0 10px rgba(240,134,46,0.8);
+}
+input[type=range]::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 4px;
+    cursor: pointer;
+    background: rgba(240,134,46,0.3);
+    border-radius: 2px;
+}
+.range-val {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    color: var(--amber);
+    font-weight: bold;
+    float: right;
+}
+
+/* Spinner */
+.spinner {
+    border: 3px solid rgba(255,255,255,0.1);
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border-left-color: var(--amber);
+    animation: spin 1s linear infinite;
+    display: inline-block;
+    vertical-align: middle;
+}
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* Sun & Moon Display */
+.celestial-display {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+    margin-bottom: 30px;
+}
+.celestial-icon {
+    font-size: 64px;
+    opacity: 0.1;
+    filter: grayscale(100%);
+    transition: all 0.5s ease-in-out;
+    transform: scale(0.8);
+}
+.celestial-icon.active-sun {
+    opacity: 1;
+    filter: grayscale(0%) drop-shadow(0 0 20px rgba(255,200,0,0.8));
+    transform: scale(1.1);
+}
+.celestial-icon.active-moon {
+    opacity: 1;
+    filter: grayscale(0%) drop-shadow(0 0 20px rgba(127,168,214,0.8));
+    transform: scale(1.1);
+}
+.prob-bar-container {
+    width: 80%;
+    height: 8px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 10px auto;
+}
+.prob-bar {
+    height: 100%;
+    width: 0%;
+    background: var(--amber);
+    transition: width 1s ease-in-out, background 1s ease-in-out;
+}
+</style>
+
 <div class="wrap" style="padding: 40px 24px;">
     <div class="section-lbl">
         <span>CLASIFICACIÓN DÍA / NOCHE</span>
-        <span>MODELO: LIGHTGBM</span>
+        <span>CENTRO DE COMANDO</span>
     </div>
     
-    <h1 style="font-size:clamp(22px,4vw,34px);color:#fff;margin:0 0 10px;">¿Esta detección ocurrió de día o de noche?</h1>
-    <p class="lede" style="margin:0 0 30px;">El modelo analiza las lecturas del sensor para determinar si el foco fue detectado durante el día o la noche.</p>
+    <h1 style="font-size:clamp(22px,4vw,34px);color:#fff;margin:0 0 10px;">Monitor Temporal de Detección</h1>
+    <p class="lede" style="margin:0 0 30px;">El modelo analiza la radiometría para determinar de manera binaria si el foco fue detectado durante el día o la noche.</p>
     
-    <div class="form-card">
-        <form id="form-dia-noche">
-            <div class="form-grid">
-                <div class="form-group">
-                    <label>TEMPERATURA DE BRILLO (K)</label>
-                    <input type="number" name="brightness" step="0.1" placeholder="ej: 320.5" required>
-                </div>
-                <div class="form-group">
-                    <label>TEMPERATURA DEL TERRENO (K)</label>
-                    <input type="number" name="bright_t31" step="0.1" placeholder="ej: 295.0" required>
-                </div>
-                <div class="form-group">
-                    <label>LOG DE POTENCIA RADIATIVA</label>
-                    <input type="number" name="frp_log" step="0.01" placeholder="ej: 2.5" required>
-                </div>
-                <div class="form-group">
-                    <label>ANCHO DE ESCANEO (KM)</label>
-                    <input type="number" name="scan" step="0.01" placeholder="ej: 0.39" required>
-                </div>
-                <div class="form-group">
-                    <label>PROFUNDIDAD DE ESCANEO (KM)</label>
-                    <input type="number" name="track" step="0.01" placeholder="ej: 0.36" required>
-                </div>
-                <div class="form-group">
-                    <label>CONFIANZA DE DETECCIÓN (%)</label>
-                    <input type="number" name="confidence_num" step="1" min="0" max="100" placeholder="ej: 85" required>
-                </div>
-                <div class="form-group" style="grid-column: 1 / -1; margin-top: 10px;">
-                    <button type="submit" class="btn-predict" style="width: 100%;">☀️ CLASIFICAR DÍA/NOCHE</button>
-                </div>
+    <div class="split-layout">
+        <!-- Panel Izquierdo: Inputs -->
+        <div class="panel-left">
+            <div class="test-cases">
+                <button type="button" class="btn-test" onclick="cargarCaso(350.5, 310.0, 3.5, 0.40, 0.38, 100)">☀️ Cargar Caso Día</button>
+                <button type="button" class="btn-test" onclick="cargarCaso(300.5, 285.5, 1.0, 0.60, 0.55, 60)">🌙 Cargar Caso Noche</button>
             </div>
-        </form>
-    </div>
-    
-    <div id="mapa-resultado" class="night-map" style="display:none; height:200px; margin-top:24px; position:relative;">
-        <div id="punto-resultado" class="light" style="top:45%; left:50%;"></div>
-    </div>
-    <div id="resultado-dia-noche" style="text-align:center; margin-top:16px; display:none;">
-        <p id="resultado-dn-texto" style="font-family:'Space Mono',monospace; font-size:14px; color:var(--amber);"></p>
+            <form id="form-dia-noche">
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label>Temperatura de Brillo (K)</label>
+                    <input type="number" id="brightness" name="brightness" step="0.1" placeholder="ej: 320.5" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label>Temperatura del Terreno (K)</label>
+                    <input type="number" id="bright_t31" name="bright_t31" step="0.1" placeholder="ej: 295.0" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label>Log de Potencia Radiativa</label>
+                    <input type="number" id="frp_log" name="frp_log" step="0.01" placeholder="ej: 2.5" required>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label>Ancho Escaneo</label>
+                        <input type="number" id="scan" name="scan" step="0.01" placeholder="0.39" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label>Profundidad Escaneo</label>
+                        <input type="number" id="track" name="track" step="0.01" placeholder="0.36" required>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom: 25px;">
+                    <label>Confianza Satelital (%) <span class="range-val" id="conf-val">85%</span></label>
+                    <input type="range" id="confidence_num" name="confidence_num" min="0" max="100" value="85" oninput="document.getElementById('conf-val').innerText = this.value + '%'">
+                </div>
+                
+                <button type="submit" class="btn-predict" style="width: 100%; justify-content: center;">
+                    <span id="btn-text">⏱️ EVALUAR TEMPORALIDAD</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Panel Derecho: Resultados -->
+        <div class="panel-right" id="result-panel">
+            <div style="font-family:'Space Mono', monospace; font-size: 11px; color: var(--dim); position: absolute; top: 20px; left: 20px; letter-spacing: 2px;">ANÁLISIS EN TIEMPO REAL</div>
+            
+            <div class="celestial-display">
+                <div class="celestial-icon" id="icon-sun">☀️</div>
+                <div class="celestial-icon" id="icon-moon">🌙</div>
+            </div>
+            
+            <div style="width: 100%; margin-top: 10px;">
+                <div class="prob-bar-container">
+                    <div class="prob-bar" id="prob-bar"></div>
+                </div>
+                <div id="resultado-valor" style="font-family:'Space Mono', monospace; font-size: 24px; font-weight: bold; margin-top: 15px; color: var(--dim);">--</div>
+                <div id="resultado-desc" style="font-size: 14px; color: var(--dim); margin-top: 5px; font-family:'Space Mono', monospace;">Esperando telemetría...</div>
+            </div>
+        </div>
     </div>
 </div>
+{% endblock %}
 
+{% block scripts %}
 <script>
+function cargarCaso(b, t31, f, s, t, conf) {
+    document.getElementById('brightness').value = b;
+    document.getElementById('bright_t31').value = t31;
+    document.getElementById('frp_log').value = f;
+    document.getElementById('scan').value = s;
+    document.getElementById('track').value = t;
+    document.getElementById('confidence_num').value = conf;
+    document.getElementById('conf-val').innerText = conf + '%';
+}
+
 document.getElementById('form-dia-noche').addEventListener('submit', async function(e) {
     e.preventDefault();
     const btn = this.querySelector('button');
+    const btnText = document.getElementById('btn-text');
+    
     btn.disabled = true;
-    btn.textContent = 'Procesando...';
+    btnText.innerHTML = '<div class="spinner"></div> CALCULANDO...';
     
     const formData = new FormData(this);
     const data = Object.fromEntries(formData);
     
-    try {
-        const resp = await fetch('/api/predecir-dia-noche', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(data)
-        });
-        const result = await resp.json();
-        
-        if (result.error) { 
-            alert(result.error); 
-            return; 
+    setTimeout(async () => {
+        try {
+            const resp = await fetch('/api/predecir-dia-noche', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
+            const result = await resp.json();
+            
+            if (result.error) { 
+                alert(result.error); 
+                return; 
+            }
+            
+            const iconSun = document.getElementById('icon-sun');
+            const iconMoon = document.getElementById('icon-moon');
+            const probBar = document.getElementById('prob-bar');
+            const resVal = document.getElementById('resultado-valor');
+            const resDesc = document.getElementById('resultado-desc');
+            
+            // Reset
+            iconSun.className = 'celestial-icon';
+            iconMoon.className = 'celestial-icon';
+            
+            if (result.prediccion === 'D') {
+                iconSun.classList.add('active-sun');
+                probBar.style.width = (result.probabilidad_dia * 100) + '%';
+                probBar.style.background = '#FFC46B';
+                resVal.textContent = 'DÍA DETECTADO';
+                resVal.style.color = '#FFC46B';
+                resDesc.textContent = `Probabilidad: ${(result.probabilidad_dia * 100).toFixed(1)}%`;
+            } else {
+                iconMoon.classList.add('active-moon');
+                probBar.style.width = (result.probabilidad_noche * 100) + '%';
+                probBar.style.background = '#7FA8D6';
+                resVal.textContent = 'NOCHE DETECTADA';
+                resVal.style.color = '#7FA8D6';
+                resDesc.textContent = `Probabilidad: ${(result.probabilidad_noche * 100).toFixed(1)}%`;
+            }
+            
+        } catch(err) { 
+            alert('Error al conectar con el servidor'); 
+        } finally { 
+            btn.disabled = false; 
+            btnText.innerHTML = '⏱️ EVALUAR TEMPORALIDAD'; 
         }
-        
-        const mapArea = document.getElementById('mapa-resultado');
-        const textContainer = document.getElementById('resultado-dia-noche');
-        const textEl = document.getElementById('resultado-dn-texto');
-        const point = document.getElementById('punto-resultado');
-        
-        point.className = 'light'; // reset classes
-        
-        if (result.prediccion === 'D') {
-            point.classList.add('l-warm');
-            mapArea.style.background = 'linear-gradient(to bottom, #4a6fa5, #16222E)';
-            textEl.textContent = `Predicción: Día — Probabilidad: ${(result.probabilidad_dia * 100).toFixed(1)}%`;
-            textEl.style.color = '#FFC46B';
-        } else {
-            point.classList.add('l-cold');
-            mapArea.style.background = 'linear-gradient(to bottom, #050b14, #16222E)';
-            textEl.textContent = `Predicción: Noche — Probabilidad: ${(result.probabilidad_noche * 100).toFixed(1)}%`;
-            textEl.style.color = '#7FA8D6';
-        }
-        
-        mapArea.style.display = 'block';
-        textContainer.style.display = 'block';
-        
-    } catch(err) { 
-        alert('Error al conectar con el servidor'); 
-    } finally { 
-        btn.disabled = false; 
-        btn.textContent = '☀️ CLASIFICAR DÍA/NOCHE'; 
-    }
+    }, 1000);
 });
 </script>
 {% endblock %}

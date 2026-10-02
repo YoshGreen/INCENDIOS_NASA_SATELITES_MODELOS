@@ -29,20 +29,50 @@
   </div>
 
   <div class="form-card" style="margin-bottom: 20px;">
-    <h2 style="font-size:18px;color:#fff;margin:0 0 12px;">Variables utilizadas</h2>
-    <div class="term" style="margin-top: 15px;">
+    <h2 style="font-size:18px;color:#fff;margin:0 0 12px;">Diccionario de Datos: Dataset de Incendios Forestales en Bolivia (NASA FIRMS)</h2>
+    
+    <h3 style="font-size:14px; color:var(--amber); margin: 15px 0 5px;">Identificación Espacio Temporal y Sensor</h3>
+    <div class="term">
       <div class="term-body" style="overflow-x: auto; padding: 15px;">
         <table class="term-table">
           <tbody>
-            <tr><td><strong>brightness</strong></td><td>Temperatura de brillo del canal 4 (K)</td></tr>
-            <tr><td><strong>bright_t31</strong></td><td>Temperatura de brillo del canal 31/terreno (K)</td></tr>
-            <tr><td><strong>scan</strong></td><td>Ancho del píxel de escaneo (km)</td></tr>
-            <tr><td><strong>track</strong></td><td>Profundidad del píxel de escaneo (km)</td></tr>
-            <tr><td><strong>confidence_num</strong></td><td>Nivel de confianza de la detección (%)</td></tr>
-            <tr><td><strong>frp</strong></td><td>Potencia Radiativa del Fuego (MW)</td></tr>
-            <tr><td><strong>daynight</strong></td><td>Indicador de detección diurna (D) o nocturna (N)</td></tr>
-            <tr><td><strong>satellite</strong></td><td>Satélite que realizó la detección</td></tr>
-            <tr><td><strong>instrument</strong></td><td>Instrumento sensor utilizado</td></tr>
+            <tr><td><strong>latitude</strong></td><td>Coordenada geográfica de latitud del foco de calor en Bolivia.</td></tr>
+            <tr><td><strong>longitude</strong></td><td>Coordenada geográfica de longitud del foco de calor en Bolivia.</td></tr>
+            <tr><td><strong>acq_date</strong></td><td>Fecha de adquisición e interacción con la superficie en formato YYYY-MM-DD.</td></tr>
+            <tr><td><strong>acq_time</strong></td><td>Hora UTC de paso del satélite expresada en formato militar (HHMM).</td></tr>
+            <tr><td><strong>satellite</strong></td><td>Satélite emisor de la captura (N20, N21, SNPP, Aqua, Terra).</td></tr>
+            <tr><td><strong>instrument</strong></td><td>Sensor térmico a bordo del satélite (VIIRS con resolución de 375m o MODIS con resolución de 1km).</td></tr>
+            <tr><td><strong>version</strong></td><td>Edición del algoritmo o procesamiento aplicado por la NASA (ej. 2, 61.03, 2.0NRT).</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <h3 style="font-size:14px; color:var(--amber); margin: 20px 0 5px;">Radiometría Térmica y Cobertura Espacial</h3>
+    <div class="term">
+      <div class="term-body" style="overflow-x: auto; padding: 15px;">
+        <table class="term-table">
+          <tbody>
+            <tr><td><strong>brightness</strong></td><td>Temperatura de brillo del foco de calor captada por la banda de 4 µm, medida en Kelvin (K).</td></tr>
+            <tr><td><strong>bright_t31</strong></td><td>Temperatura de brillo del canal infrarrojo térmico secundario (11 µm), medida en Kelvin (K).</td></tr>
+            <tr><td><strong>scan</strong></td><td>Ancho del píxel de cobertura espacial del sensor satelital medido en kilómetros (km).</td></tr>
+            <tr><td><strong>track</strong></td><td>Largo del píxel de cobertura espacial del sensor satelital medido en kilómetros (km).</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <h3 style="font-size:14px; color:var(--amber); margin: 20px 0 5px;">Calidad, Confianza y Variables Procesadas para Machine Learning</h3>
+    <div class="term">
+      <div class="term-body" style="overflow-x: auto; padding: 15px;">
+        <table class="term-table">
+          <tbody>
+            <tr><td><strong>confidence</strong></td><td>Registro original de la fiabilidad del foco de calor (formato mixto de texto e intervalo numérico).</td></tr>
+            <tr><td><strong>confidence_num</strong></td><td>Nivel de confianza estandarizado a una escala numérica continua (0 a 100%).</td></tr>
+            <tr><td><strong>daynight</strong></td><td>Registro cualitativo del momento de la detección (D = Día, N = Noche).</td></tr>
+            <tr><td><strong>daynight_num</strong></td><td>Variable objetivo (y) para Clasificación. Codificación binaria del indicador temporal (1 = Día, 0 = Noche).</td></tr>
+            <tr><td><strong>frp</strong></td><td>Potencia Radiativa del Fuego (Fire Radiative Power) en Megavatios (MW). Mide la tasa instantánea de energía liberada por la biomasa en combustión.</td></tr>
+            <tr><td><strong>frp_log</strong></td><td>Variable objetivo (y) para Regresión. Transformación logarítmica log(1 + FRP) para corregir la alta asimetría y suavizar el impacto de eventos extremos de gran magnitud.</td></tr>
           </tbody>
         </table>
       </div>

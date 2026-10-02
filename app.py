@@ -9,7 +9,7 @@ app = Flask(__name__)
 
 # Configurar rutas de modelos
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODELOS_DIR = os.path.join(BASE_DIR, 'dashboard_modelos')
+MODELOS_DIR = os.path.join(BASE_DIR, 'dashboard_modelos', 'modelos')
 
 # Variables globales para modelos
 modelos = {
@@ -234,26 +234,22 @@ def api_clasificar_nivel():
         instrument_VIIRS = 1.0 if instrument == 'VIIRS' else 0.0
         
         # Feature order (17 cols, exacto al training):
-        # brightness, bright_t31, scan, track, confidence_num, mes, hora, 
-        # daynight_D, daynight_N, satellite_Aqua, satellite_N20, satellite_N21, 
-        # satellite_SNPP, satellite_Terra, instrument_MODIS, instrument_SNPP, instrument_VIIRS
+        features_num = [brightness, bright_t31, scan, track, confidence_num, mes, hora]
+        features_cat = [daynight_D, daynight_N, satellite_Aqua, satellite_N20, satellite_N21,
+                        satellite_SNPP, satellite_Terra, instrument_MODIS, instrument_SNPP, instrument_VIIRS]
         
-        features = [
-            brightness, bright_t31, scan, track, confidence_num, mes, hora,
-            daynight_D, daynight_N, satellite_Aqua, satellite_N20, satellite_N21,
-            satellite_SNPP, satellite_Terra, instrument_MODIS, instrument_SNPP, instrument_VIIRS
-        ]
+        # Escalar numéricos
+        X_num = scalers['nivel'].transform([features_num])[0]
+        X_scaled = np.concatenate([X_num, features_cat]).reshape(1, -1)
         
-        X = np.array(features).reshape(1, -1)
-        
-        # LightGBM es tree-based, predice directamente sin escalar
+        # El modelo fue entrenado con datos escalados
         modelo = modelos['nivel']['lightgbm']
-        prediccion_val = int(modelo.predict(X)[0])
+        prediccion_val = int(modelo.predict(X_scaled)[0])
         
         # Probabilidades como array [bajo, medio, alto]
         probabilidades = []
         if hasattr(modelo, 'predict_proba'):
-            probs = modelo.predict_proba(X)[0]
+            probs = modelo.predict_proba(X_scaled)[0]
             probabilidades = [round(float(p), 4) for p in probs]
             
         if prediccion_val == 0:
