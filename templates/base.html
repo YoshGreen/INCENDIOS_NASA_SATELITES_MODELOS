@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -25,6 +25,9 @@
                 <a href="/predecir-dia-noche" class="{% if active_page == 'dia-noche' %}active{% endif %}">Día/Noche</a>
                 <a href="/clasificar-nivel" class="{% if active_page == 'nivel' %}active{% endif %}">Nivel de Riesgo</a>
                 <a href="https://script.google.com/macros/s/AKfycbwHUJvQ4eO6394YaJ6P_w3_OXDCVFgk7_mIYJGguEeFuQFT8FC4VAz8sfxyS4YHrOHOZQ/exec" target="_blank">Bitácora</a>
+                <a href="https://github.com/YoshGreen/INCENDIOS_NASA_SATELITES_MODELOS" target="_blank">GitHub</a>
+                <a href="https://firms.modaps.eosdis.nasa.gov/map/#d:24hrs;@0.0,0.0,3.0z" target="_blank">FIRMS NASA</a>
+                <a href="javascript:void(0)" onclick="document.getElementById('qrModal').style.display='flex'">QR</a>
             </nav>
             <div class="legend">
                 <span class="chip-cold">FRÍO</span>
@@ -46,6 +49,15 @@
 
     {% block scripts %}
     {% endblock %}
+
+    <!-- Modal QR -->
+    <div id="qrModal" class="modal" onclick="this.style.display='none'">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <span class="close" onclick="document.getElementById('qrModal').style.display='none'">&times;</span>
+            <img src="{{ url_for('static', filename='img_cv/qr.png') }}" alt="QR Code" style="width:100%; max-width:250px; display:block; margin:0 auto; border-radius: 4px;">
+            <p style="margin-top: 15px; font-family: 'Space Mono', monospace; font-size: 14px; color: var(--amber); font-weight: bold; text-align: center;">Código QR</p>
+        </div>
+    </div>
 </body>
 </html>
 
